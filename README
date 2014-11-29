@@ -20,7 +20,7 @@ optional arguments:
   --padding PADDING     padding between faces (mm) (default: 3.)
   --sheetwidth SHEETWIDTH
                         maximum sheet width (mm) (default: 550)
-  --cutwidth CUTWIDTH   cutting width of laser(mm) (default: .25)
+  --cutwidth CUTWIDTH   cutting width of laser(mm) (default: .15)
   --flip                engrave on the backside
   --dpi DPI             dpi used for svg, (default: 90, as used by inkscape)
   --invert              engrave seas instead of landmass
