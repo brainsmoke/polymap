@@ -106,19 +106,16 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding):
         engraving = svg.group( svg.path( face['borders'], style=engrave )+
                                svg.path( face['projection'], style=engrave ),
                                id='engrave_'+str(i) )
-        f.write(svg.group( borders + engraving, transform='translate('+str(x)+' '+str(y)+')' ))
+        text = svg.text(0,25, str(i), style=comment+';'+textstyle )
 
-    for i, face in enumerate(facepaths):
-        x, y = pos[i]
-        s = svg.text(0,25, str(i), style=comment+';'+textstyle )
         for n, a, b in zip(face['neighbours'],
                            face['points'], face['points'][1:]+face['points'][:1]):
             x1, y1 = a
             x2, y2 = b
             dx, dy = (x1+x2)/3., (y1+y2)/3.+15
-            s += svg.text(dx,dy, str(n), style=comment+';'+smalltextstyle )
+            text += svg.text(dx,dy, str(n), style=comment+';'+smalltextstyle )
 
-        f.write(svg.group( s, transform='translate('+str(x)+' '+str(y)+')' ))
+        f.write(svg.group( svg.group(borders + engraving) + text, transform='translate('+str(x)+' '+str(y)+')', id='face_'+str(i) ))
 
     f.write(svg.footer())
 
@@ -145,11 +142,12 @@ def render_polyhedron_map(filename, faces, inverted, nodges,
 #
 dhxdron_inverted = (13, 19, 43, 47, 46)
 rhombictriacontahedron_inverted = (28,)
+pentagonal_hexecontahedron_inverted = (40,41,43,46)
 
 projections = {
     'oD' : ("Deltoidal hexecontahedron",  polymath.deltoidalhexecontahedron_faces, dhxdron_inverted, "SLLS"),
     'jD' : ("Rhombic triacontahedron",    polymath.rhombictriacontahedron_faces, rhombictriacontahedron_inverted, "LLLL"),
-    'gD' : ("Pentagonal hexecontahedron", polymath.pentagonal_hexecontahedron_faces, (), "SSSLL"),
+    'gD' : ("Pentagonal hexecontahedron", polymath.pentagonal_hexecontahedron_faces, pentagonal_hexecontahedron_inverted, "SSSLL"),
     'mD' : ("Disdyakis triacontahedron",  polymath.disdyakis_triacontahedron_faces, (), "LLL"),
 }
 
