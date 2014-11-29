@@ -1,7 +1,7 @@
 
 import math, sys, os
 
-import globe, svg, subdivide, render, projection, linear, polymath
+import globe, svg, pathedit, render, projection, linear, polymath
 
 #
 # settings
@@ -12,6 +12,7 @@ thickness = 3.
 overhang = .5
 overcut = 0.
 sheetwidth = 550.
+cutwidth = 3.
 
 engrave = 'stroke:none;fill:#000000'
 clip = 'stroke:none;fill:#0000ff'
@@ -68,10 +69,10 @@ def get_projection_paths(faces, globe, nodges, thickness, overhang, overcut):
         edges = [ (x*radius,-y*radius) for x,y,z in
                 projection.look_at(face['points'], eye=eye, north=north) ]
 
-        shape = subdivide.subdivide(edges, nodges, face['angles'],
-                                    thickness=thickness,
-                                    overhang=overhang,
-                                    overcut=overcut)
+        shape = pathedit.subdivide(edges, nodges, face['angles'],
+                                   thickness=thickness,
+                                   overhang=overhang,
+                                   overcut=overcut)
 
         paths.append( { 'bbox'      : get_bounding_box(shape),
                         'borders'   : svg.polygon_path(shape),
