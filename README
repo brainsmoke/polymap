@@ -1,0 +1,34 @@
+usage: polymap.py [-h] [--type {gD,jD,mD,oD}] [--radius RADIUS]
+                  [--thickness THICKNESS] [--overhang OVERHANG]
+                  [--overcut OVERCUT] [--padding PADDING]
+                  [--sheetwidth SHEETWIDTH] [--cutwidth CUTWIDTH] [--flip]
+                  [--dpi DPI] [--invert]
+                  filename
+
+positional arguments:
+  filename              output svg
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --type {gD,jD,mD,oD}  solid type (Conway name)
+  --radius RADIUS       polyhedron's radius (mm) (default: 100)
+  --thickness THICKNESS
+                        material thickness (mm) (default: 3.)
+  --overhang OVERHANG   overhang of nodges (mm) (default: .3)
+  --overcut OVERCUT     overcut in corners to account for cutting width (mm)
+                        (default: 0)
+  --padding PADDING     padding between faces (mm) (default: 3.)
+  --sheetwidth SHEETWIDTH
+                        maximum sheet width (mm) (default: 550)
+  --cutwidth CUTWIDTH   cutting width of laser(mm) (default: .25)
+  --flip                engrave on the backside
+  --dpi DPI             dpi used for svg, (default: 90, as used by inkscape)
+  --invert              engrave seas instead of landmass
+
+Supported solids:
+
+	gD: Pentagonal hexecontahedron
+	jD: Rhombic triacontahedron
+	mD: Disdyakis triacontahedron
+	oD: Deltoidal hexecontahedron
+ 

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 import math, sys, os
 
@@ -7,13 +8,6 @@ import globe, svg, pathedit, render, projection, linear, polymath
 # settings
 #
 
-radius = 120.
-thickness = 3.
-overhang = .5
-overcut = 0.
-sheetwidth = 550.
-cutwidth = 3.
-
 engrave = 'stroke:none;fill:#000000'
 clip = 'stroke:none;fill:#0000ff'
 cut = 'stroke:#ff0000;fill:none'
@@ -21,25 +15,6 @@ cut = 'stroke:#ff0000;fill:none'
 comment = 'stroke:none;fill:#0000ff'
 textstyle= 'font-size:50px;text-align:center;text-anchor:middle;'
 smalltextstyle= 'font-size:30px;text-align:center;text-anchor:middle;'
-
-#
-# convert to inkscape sizes
-#
-
-dpi = 90.
-native_scale = dpi/25.4
-
-radius *= native_scale
-thickness *= native_scale
-overhang *= native_scale
-overcut *= native_scale
-sheetwidth *= native_scale
-
-#
-# Sadly, some tiles have to me manually inverted
-#
-dhxdron_inverted = (13, 19, 43, 47, 46)
-rhombictriacontahedron_inverted = (28,)
 
 def get_bounding_box(path):
     """ returns (min_x, min_y, max_x, max_y) """
@@ -55,7 +30,12 @@ def get_bounding_box(path):
 
     return (min_x, min_y, max_x, max_y)
 
-def get_projection_paths(faces, globe, nodges, thickness, overhang, overcut):
+def get_projection_paths(faces, globe, nodges, radius, thickness, overhang, overcut, cutwidth, flip):
+
+    if flip:
+        xflip = -1.
+    else:
+        xflip = 1.
 
     paths = []
     for i, face in enumerate(faces):
@@ -63,16 +43,17 @@ def get_projection_paths(faces, globe, nodges, thickness, overhang, overcut):
         north = face['points'][0]
 
         proj = projection.inverse_project(globe, eye=eye, north=north, front=True)
-        engraving = [ [ (x*radius,-y*radius, vis) for x,y,vis in p ]
+        engraving = [ [ (xflip*x*radius,-y*radius, vis) for x,y,vis in p ]
                       for p in proj if len(p) > 2 ]
 
-        edges = [ (x*radius,-y*radius) for x,y,z in
+        edges = [ (xflip*x*radius,-y*radius) for x,y,z in
                 projection.look_at(face['points'], eye=eye, north=north) ]
 
-        shape = pathedit.subdivide(edges, nodges, face['angles'],
-                                   thickness=thickness,
-                                   overhang=overhang,
-                                   overcut=overcut)
+        shape = pathedit.grow(pathedit.subdivide(edges, nodges, face['angles'],
+                                                 thickness=thickness,
+                                                 overhang=overhang,
+                                                 overcut=overcut),
+                              cutwidth/2.)
 
         paths.append( { 'bbox'      : get_bounding_box(shape),
                         'borders'   : svg.polygon_path(shape),
@@ -97,7 +78,7 @@ def inkscape_batch_intersection(filename, face_count, inverted):
     argv += [ '--verb', 'FileSave', '--verb', 'FileQuit' ]
     os.spawnvp(os.P_WAIT, 'inkscape', argv)
 
-def write_polygon_projection_svg(f, facepaths, sheetwidth, padding=5.*native_scale):
+def write_polygon_projection_svg(f, facepaths, sheetwidth, padding):
 
     x, y = padding, padding
     w, cur_h = 0., 0.
@@ -142,36 +123,81 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding=5.*native_sca
     f.write(svg.footer())
 
 def render_polyhedron_map(filename, faces, inverted, nodges,
-                          thickness, overhang, overcut, sheetwidth):
+                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip):
 
     g = globe.get_globe_cached()
     facepaths = get_projection_paths(faces, g, nodges=nodges,
+                                     radius=radius,
                                      thickness=thickness,
                                      overhang=overhang,
-                                     overcut=overcut)
+                                     overcut=overcut,
+                                     cutwidth=cutwidth,
+                                     flip=flip)
     f = open(filename, "w")
-    write_polygon_projection_svg(f, facepaths, sheetwidth)
+    write_polygon_projection_svg(f, facepaths, sheetwidth, padding)
     f.close()
 
     inkscape_batch_intersection(filename, len(faces), inverted)
 
+
+#
+# Sadly, some tiles have to me manually inverted
+#
+dhxdron_inverted = (13, 19, 43, 47, 46)
+rhombictriacontahedron_inverted = (28,)
+
 projections = {
-    'dhxdron' : (polymath.deltoidalhexecontahedron_faces, dhxdron_inverted, "SLLS"),
-    'rhmtria' : (polymath.rhombictriacontahedron_faces, rhombictriacontahedron_inverted, "LLLL"),
-    'phxdron' : (polymath.pentagonal_hexecontahedron_faces, (), "SSSLL"),
-    'dystriacon' : (polymath.disdyakis_triacontahedron_faces, (), "LLL"),
-    'octahedron' : (polymath.octahedron_faces, (), "LLLL"),
+    'oD' : ("Deltoidal hexecontahedron",  polymath.deltoidalhexecontahedron_faces, dhxdron_inverted, "SLLS"),
+    'jD' : ("Rhombic triacontahedron",    polymath.rhombictriacontahedron_faces, rhombictriacontahedron_inverted, "LLLL"),
+    'gD' : ("Pentagonal hexecontahedron", polymath.pentagonal_hexecontahedron_faces, (), "SSSLL"),
+    'mD' : ("Disdyakis triacontahedron",  polymath.disdyakis_triacontahedron_faces, (), "LLL"),
 }
 
 if __name__ == '__main__':
 
-    filename = sys.argv[1]
+    import argparse
 
-    #faces_func, inverted, nodges = projections['octahedron']
-    #faces_func, inverted, nodges = projections['rhmtria']
-    faces_func, inverted, nodges = projections['dhxdron']
-    render_polyhedron_map(filename, faces_func(), inverted, nodges,
-                          thickness=thickness,
-                          overhang=overhang,
-                          overcut=overcut,
-                          sheetwidth=sheetwidth)
+    type_choices = projections.keys()
+    type_choices.sort()
+
+    epilog = "Supported solids:\n\n" + '\n'.join("\t"+k+': '+projections[k][0] for k in type_choices) + '\n '
+
+    parser = argparse.ArgumentParser(epilog=epilog,formatter_class=argparse.RawDescriptionHelpFormatter)
+
+    parser.add_argument("filename", help="output svg", type=str)
+    parser.add_argument("--type", help="solid type (Conway name)", choices=type_choices, default='oD')
+    parser.add_argument("--radius", help="polyhedron's radius (mm) (default: 100)", type=float, default=100.)
+    parser.add_argument("--thickness", help="material thickness (mm) (default: 3.)", type=float, default=3.)
+    parser.add_argument("--overhang", help="overhang of nodges (mm) (default: .3)", type=float, default=.3)
+    parser.add_argument("--overcut", help="overcut in corners to account for cutting width (mm) (default: 0)", type=float, default=0.)
+    parser.add_argument("--padding", help="padding between faces (mm) (default: 3.)", type=float, default=3.)
+    parser.add_argument("--sheetwidth", help="maximum sheet width (mm) (default: 550)", type=float, default=550.)
+    parser.add_argument("--cutwidth", help="cutting width of laser(mm) (default: .15)", type=float, default=.15)
+    parser.add_argument("--flip", help="engrave on the backside", action="store_true")
+    parser.add_argument("--dpi", help="dpi used for svg, (default: 90, as used by inkscape)", type=float, default=90)
+    parser.add_argument("--invert", help="engrave seas instead of landmass", action="store_true")
+
+    args = parser.parse_args()
+
+    #
+    # convert to inkscape sizes
+    #
+
+    scale = args.dpi/25.4
+
+    _, faces_func, inverted, nodges = projections[args.type]
+
+    faces = faces_func()
+
+    if args.invert:
+        inverted = tuple( x for x in xrange(len(faces)) if x not in inverted )
+
+    render_polyhedron_map(args.filename, faces, inverted, nodges,
+                          radius=args.radius*scale,
+                          thickness=args.thickness*scale,
+                          overhang=args.overhang*scale,
+                          overcut=args.overcut*scale,
+                          cutwidth=args.cutwidth*scale,
+                          padding=args.padding*scale,
+                          sheetwidth=args.sheetwidth*scale,
+                          flip=args.flip)
