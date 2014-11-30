@@ -1,14 +1,34 @@
 
 import math 
-import projection
+
+def squared_distance(a, b):
+    ax, ay, az = a
+    bx, by, bz = b
+    return (ax-bx)*(ax-bx) + (ay-by)*(ay-by) + (az-bz)*(az-bz)
+
+def safe_acos(a):
+    return acos(min(1.0, max(-1.0, a)))
+
+def ll_to_globe_coord(coord):
+    a, b = coord
+    sa, ca, sb, cb = math.sin(a), math.cos(a), math.sin(b), math.cos(b)
+    x, y, z = sa*cb, sb, ca*cb
+    return (x, y, z)
+
+def globe_to_ll_coord(coord):
+    x, y, z = coord
+    a, b = safe_acos(z/sqrt(1.-y*y)), asin(y) 
+    if x < 0:
+        a = -a
+    return (a, b)
 
 def mercator_to_globe(m):
-    return [ map(projection.ll_to_globe_coord, p) for p in m ]
+    return [ map(ll_to_globe_coord, p) for p in m ]
 
 def globe_to_mercator(m):
-    return [ map(projection.globe_to_ll_coord, p) for p in m ]
+    return [ map(globe_to_ll_coord, p) for p in m ]
 
-def join_adjacent(r, dist=projection.d, max_join=20):
+def join_adjacent(r, dist, max_join=20):
 
     r = r[:]
     diffs = []
@@ -63,11 +83,8 @@ def get_regions(filename):
 
     return regions
 
-def get_map():
-    return join_adjacent(get_regions("data/24577.dat"), dist=projection.d2)
-
 def get_globe():
-    return join_adjacent(mercator_to_globe(get_map()), dist=projection.d3)
+    return join_adjacent(mercator_to_globe(get_regions("data/24577.dat")), dist=squared_distance)
 
 def get_globe_cached():
     regions = []
