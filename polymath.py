@@ -2,6 +2,17 @@
 from math import *
 from linear import *
 
+def canonical_rotation( v ):
+    """ returns (canonical_first_elem, rotated_vector) """
+    best = tuple( v )
+    best_ix = 0
+    for i in xrange(1, len(v)):
+        cur = tuple( v[i:]+v[:i] )
+        if (cur < best):
+            best = cur
+            best_ix = i
+    return best_ix, best
+
 def scale_to_plane_on_normal(point, normal):
     return scalar_mul(scalar_product(normal,normal) / scalar_product(point,normal), point)
 
@@ -61,15 +72,10 @@ def vertex_info(plist, ix):
     faces = tuple( find_regular_polygon(plist, neighbours[j], ix, neighbours[j-1])
                    for j in xrange(len(neighbours)) )
     # order faces / neighbours (counter clockwise) smallest face first
-    best = tuple( len(x) for x in faces )
-    best_ix = 0
-    for j in xrange(1, len(neighbours)):
-        cur = tuple( len(x) for x in faces[j:]+faces[:j] )
-        if (cur < best):
-            best = cur
-            best_ix = j
-    neighbours = neighbours[best_ix:] + neighbours[:best_ix]
-    faces = faces[best_ix:] + faces[:best_ix]
+    first, _ = canonical_rotation( tuple( len(x) for x in faces ) )
+
+    neighbours = neighbours[first:] + neighbours[:first]
+    faces = faces[first:] + faces[:first]
 
     return neighbours, faces
 
