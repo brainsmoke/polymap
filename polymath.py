@@ -5,7 +5,7 @@ from linear import *
 def scale_to_plane_on_normal(point, normal):
     return scalar_mul(scalar_product(normal,normal) / scalar_product(point,normal), point)
 
-def neighbours(plist, ix):
+def find_neighbours(plist, ix):
     min_d = min( d(plist[ix], x) for i,x in enumerate(plist) if i != ix )
     return tuple( i for i,x in enumerate(plist) if min_d-.001 < d(plist[ix], x) < min_d+.001 )
 
@@ -13,7 +13,7 @@ def find_next_point(plist, a, b, c):
     v_in  = vector_sub(plist[b], plist[a])
     v_out = vector_sub(plist[c], plist[b])
     prod = cross_product(v_in, v_out)
-    for i in neighbours(plist, c):
+    for i in find_neighbours(plist, c):
         v_new = vector_sub(plist[i], plist[c])
         prod_new = cross_product(v_out, v_new)
         if d(prod, prod_new) < 0.001:
@@ -32,7 +32,7 @@ def find_regular_polygon(plist, last, first, second):
 
 def ccw_neighbours(plist, ix):
     p = plist[ix]
-    nlist = neighbours(plist, ix)
+    nlist = find_neighbours(plist, ix)
     onlist = [ nlist[0] ]
     while len(onlist) < len(nlist):
         n_in = onlist[-1]
@@ -52,41 +52,48 @@ def ccw_neighbours(plist, ix):
         onlist += [next_p]
     return tuple(onlist)
 
-def dual_dihedral_angle(dual_v1, dual_v2):
-    e = d(dual_v1, dual_v2)
-    r = magnitude(dual_v1)
-    a, b, c = r, r, e
+def dihedral_angle(f1_pos, f2_pos):
+    a, b, c = magnitude(f1_pos), magnitude(f2_pos), d(f1_pos, f2_pos)
     return acos( (a*a + b*b - c*c) / (2*a*b) )
 
-def catalan_face(dual_point, dual_faces):
-    return tuple( scale_to_plane_on_normal(vector_sum(*f), normalize(dual_point)) for f in dual_faces )
-
-def oriented_catalan_face(plist, ix):
-    nlist = ccw_neighbours(plist, ix)
-    faces = tuple( find_regular_polygon(plist, nlist[j-1], ix, nlist[j]) for j in xrange(len(nlist)) )
+def vertex_info(plist, ix):
+    neighbours = ccw_neighbours(plist, ix)
+    faces = tuple( find_regular_polygon(plist, neighbours[j], ix, neighbours[j-1])
+                   for j in xrange(len(neighbours)) )
+    # order faces / neighbours (counter clockwise) smallest face first
     best = tuple( len(x) for x in faces )
     best_ix = 0
-    for j in xrange(1, len(nlist)):
+    for j in xrange(1, len(neighbours)):
         cur = tuple( len(x) for x in faces[j:]+faces[:j] )
         if (cur < best):
             best = cur
             best_ix = j
-    nlist = nlist[best_ix:] + nlist[:best_ix]
+    neighbours = neighbours[best_ix:] + neighbours[:best_ix]
     faces = faces[best_ix:] + faces[:best_ix]
-    points = catalan_face(plist[ix], tuple( tuple( plist[n] for n in f ) for f in faces ) )
-    angles = [ dual_dihedral_angle( plist[ix], plist[neighbour] )
-               for neighbour in nlist ]
+
+    return neighbours, faces
+
+def catalan_face(plist, ix):
+    neighbours, faces = vertex_info(plist, ix)
+
+    faces_coords = tuple( tuple( plist[i] for i in f ) for f in faces )
+
+    points = tuple( scale_to_plane_on_normal(vector_sum(*f), normalize(plist[ix]))
+                    for f in faces_coords )
+
+    angles = [ dihedral_angle( plist[ix], plist[neighbour] )
+               for neighbour in neighbours ]
 
     return {
         'normal': normalize(plist[ix]),
         'pos':    normalize(plist[ix]),
         'points': points,
-        'neighbours': nlist,
+        'neighbours': neighbours,
         'angles': angles,
     }
 
 def dual_faces(plist):
-    return tuple( oriented_catalan_face(plist, i) for i in xrange(len(plist)) )
+    return tuple( catalan_face(plist, i) for i in xrange(len(plist)) )
 
 def rhombicosidodecahedron_points():
 
