@@ -87,8 +87,8 @@ def catalan_face(plist, ix):
     points = tuple( scale_to_plane_on_normal(vector_sum(*f), normalize(plist[ix]))
                     for f in faces_coords )
 
-    angles = [ dihedral_angle( plist[ix], plist[neighbour] )
-               for neighbour in neighbours ]
+    angles = tuple( dihedral_angle( plist[ix], plist[neighbour] )
+                    for neighbour in neighbours )
 
     return {
         'normal': normalize(plist[ix]),
@@ -100,6 +100,44 @@ def catalan_face(plist, ix):
 
 def dual_faces(plist):
     return tuple( catalan_face(plist, i) for i in xrange(len(plist)) )
+
+def archimedean_faces(plist):
+    face_list = []
+    face_points = []
+    facemap = {}
+
+    info = tuple( vertex_info(plist, i) for i in xrange(len(plist)) )
+
+    for _, faces in info:
+        for points in faces:
+            if points == canonical_rotation(points)[1]:
+                facemap[points] = len(face_list)
+                face_points.append(points)
+                coords = tuple( normalize(plist[i]) for i in points )
+                face_list.append( {
+                   'normal': normalize(vector_sum(*coords)),
+                   'pos': scalar_mul(1./len(coords), vector_sum(*coords)),
+                   'points': coords
+                } )
+
+    for i, points in enumerate(face_points):
+
+        neighbours = []
+
+        for p, pnext in zip(points, points[1:]+points[:1]):
+            _, faces = info[p]
+            for f in faces:
+                if f[-1] == pnext:
+                    neighbours.append( facemap[canonical_rotation(f)[1]] )
+                    break
+
+        angles = [ dihedral_angle( face_list[i]['pos'], face_list[n]['pos'] )
+                   for n in neighbours ]
+
+        face_list[i]['neighbours'] = tuple( neighbours )
+        face_list[i]['angles'] = tuple( angles )
+
+    return tuple( face_list )
 
 def rhombicosidodecahedron_points():
 
@@ -130,6 +168,9 @@ def rhombicosidodecahedron_points():
 
     return points
 
+def rhombicosidodecahedron_faces():
+    return archimedean_faces(rhombicosidodecahedron_points())
+
 def deltoidal_hexecontahedron_faces():
     return dual_faces(rhombicosidodecahedron_points())
 
@@ -157,6 +198,8 @@ def icosidodecahedron_points():
 def rhombic_triacontahedron_faces():
     return dual_faces(icosidodecahedron_points())
 
+def icosidodecahedron_faces():
+    return archimedean_faces(icosidodecahedron_points())
 
 def tetraedron_points():
     points = []

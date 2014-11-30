@@ -150,7 +150,9 @@ pentakis_dodecahedron_inverted = (23,)
 projections = {
     'oC' : ("Deltoidal icositetrahedron", polymath.deltoidal_icositetrahedron_faces, deltoidal_icositetrahedron_inverted, "SLLS"),
     'gC' : ("Pentagonal icositetrahedron", polymath.pentagonal_icositetrahedron_faces, pentagonal_icositetrahedron_inverted, "SSSLL"),
+    'eD' : ("Rhombicosidodecahedron",  polymath.rhombicosidodecahedron_faces, (), "LLLLL"),
     'oD' : ("Deltoidal hexecontahedron",  polymath.deltoidal_hexecontahedron_faces, deltoidal_hexecontahedron_inverted, "SLLS"),
+    'aD' : ("Icosidodecahedron",  polymath.icosidodecahedron_faces, (), "LLLLL"),
     'jD' : ("Rhombic triacontahedron",    polymath.rhombic_triacontahedron_faces, rhombictriacontahedron_inverted, "LLLL"),
     'kD' : ("Pentakis dodecahedron", polymath.pentakis_dodecahedron_faces, pentakis_dodecahedron_inverted, "LLL"),
     'gD' : ("Pentagonal hexecontahedron", polymath.pentagonal_hexecontahedron_faces, pentagonal_hexecontahedron_inverted, "SSSLL"),
