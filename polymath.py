@@ -117,7 +117,7 @@ def rhombicosidodecahedron_points():
 
     return points
 
-def deltoidalhexecontahedron_faces():
+def deltoidal_hexecontahedron_faces():
     return dual_faces(rhombicosidodecahedron_points())
 
 def icosidodecahedron_points():
@@ -141,7 +141,7 @@ def icosidodecahedron_points():
 
     return points
 
-def rhombictriacontahedron_faces():
+def rhombic_triacontahedron_faces():
     return dual_faces(icosidodecahedron_points())
 
 
@@ -208,10 +208,10 @@ def snub_dodecahedron_points():
 
     phi = ( sqrt(5.) + 1. ) / 2.
     phi2 = phi**2
-    z = (phi/2.+sqrt(phi-(5./27.))/2.)**(1./3.) + \
+    xi = (phi/2.+sqrt(phi-(5./27.))/2.)**(1./3.) + \
         (phi/2.-sqrt(phi-(5./27.))/2.)**(1./3.)
-    a = z - 1/z
-    b = z*phi + phi2 + phi/z
+    a = xi - 1/xi
+    b = xi*phi + phi2 + phi/xi
 
     even_plusses = ( (-1.,-1.,-1.), (-1., 1., 1.), ( 1.,-1., 1.), ( 1., 1.,-1) )
     coords = (
@@ -246,3 +246,69 @@ def cube_points():
 
 def octahedron_faces():
     return dual_faces(cube_points())
+
+def rhombicuboctahedron_points():
+    points = []
+
+    for x in (-1., 1):
+        for y in (-1., 1):
+            for z in (-1.-sqrt(2), 1+sqrt(2)):
+                points.append( (x, y, z) )
+                points.append( (z, x, y) )
+                points.append( (y, z, x) )
+
+    return points
+
+def deltoidal_icositetrahedron_faces():
+    return dual_faces(rhombicuboctahedron_points())
+
+
+def snub_cube_points():
+    points = []
+    xi = ( ( 17.+3.*sqrt(33.) )**(1./3.) -
+           (-17.+3.*sqrt(33.) )**(1./3.) - 1.) / 3.
+
+    even_plusses = ( (-1.,-1.,-1.), (-1., 1., 1.), ( 1.,-1., 1.), ( 1., 1.,-1) )
+    coords = ( ( 1., xi, 1./xi),
+               (-xi,-1.,-1./xi) )
+
+    for mx, my, mz in even_plusses:
+        for ax,ay,az in coords:
+            x, y, z = mx*ax, my*ay, mz*az
+            points.append( (x, y, z) )
+            points.append( (z, x, y) )
+            points.append( (y, z, x) )
+
+    return points
+
+def pentagonal_icositetrahedron_faces():
+    return dual_faces(snub_cube_points())
+
+def truncated_icosahedron_points():
+    points = []
+    phi = ( sqrt(5.) + 1. ) / 2.
+
+    for x in (-2., 2.):
+        for y in (-1-2*phi, 1+2*phi):
+            for z in (-phi, phi):
+                points.append( (x, y, z) )
+                points.append( (z, x, y) )
+                points.append( (y, z, x) )
+
+    for x in (-1., 1.):
+        for y in (-2-phi, 2+phi):
+            for z in (-2*phi, 2*phi):
+                points.append( (x, y, z) )
+                points.append( (z, x, y) )
+                points.append( (y, z, x) )
+
+    for x in (-1., 1.):
+        for y in (-3.*phi, 3*phi):
+            points.append( (x, y, 0) )
+            points.append( (0, x, y) )
+            points.append( (y, 0, x) )
+
+    return points
+
+def pentakis_dodecahedron_faces():
+    return dual_faces(truncated_icosahedron_points())

@@ -1,4 +1,4 @@
-usage: polymap.py [-h] [--type {gD,jD,mD,oD}] [--radius RADIUS]
+usage: polymap.py [-h] [--type {gC,gD,jD,kD,mD,oC,oD}] [--radius RADIUS]
                   [--thickness THICKNESS] [--overhang OVERHANG]
                   [--overcut OVERCUT] [--padding PADDING]
                   [--sheetwidth SHEETWIDTH] [--cutwidth CUTWIDTH] [--flip]
@@ -10,7 +10,8 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --type {gD,jD,mD,oD}  solid type (Conway name)
+  --type {gC,gD,jD,kD,mD,oC,oD}
+                        solid type (Conway name)
   --radius RADIUS       polyhedron's radius (mm) (default: 100)
   --thickness THICKNESS
                         material thickness (mm) (default: 3.)
@@ -27,8 +28,11 @@ optional arguments:
 
 Supported solids:
 
+	gC: Pentagonal icositetrahedron
 	gD: Pentagonal hexecontahedron
 	jD: Rhombic triacontahedron
+	kD: Pentakis dodecahedron
 	mD: Disdyakis triacontahedron
+	oC: Deltoidal icositetrahedron
 	oD: Deltoidal hexecontahedron
  

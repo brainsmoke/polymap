@@ -140,13 +140,19 @@ def render_polyhedron_map(filename, faces, inverted, nodges,
 #
 # Sadly, some tiles have to me manually inverted
 #
-dhxdron_inverted = (13, 19, 43, 47, 46)
+deltoidal_hexecontahedron_inverted = (13, 19, 43, 47, 46)
 rhombictriacontahedron_inverted = (28,)
 pentagonal_hexecontahedron_inverted = (40,41,43,46)
+deltoidal_icositetrahedron_inverted = (22,)
+pentagonal_icositetrahedron_inverted = (19, 4)
+pentakis_dodecahedron_inverted = (23,)
 
 projections = {
-    'oD' : ("Deltoidal hexecontahedron",  polymath.deltoidalhexecontahedron_faces, dhxdron_inverted, "SLLS"),
-    'jD' : ("Rhombic triacontahedron",    polymath.rhombictriacontahedron_faces, rhombictriacontahedron_inverted, "LLLL"),
+    'oC' : ("Deltoidal icositetrahedron", polymath.deltoidal_icositetrahedron_faces, deltoidal_icositetrahedron_inverted, "SLLS"),
+    'gC' : ("Pentagonal icositetrahedron", polymath.pentagonal_icositetrahedron_faces, pentagonal_icositetrahedron_inverted, "SSSLL"),
+    'oD' : ("Deltoidal hexecontahedron",  polymath.deltoidal_hexecontahedron_faces, deltoidal_hexecontahedron_inverted, "SLLS"),
+    'jD' : ("Rhombic triacontahedron",    polymath.rhombic_triacontahedron_faces, rhombictriacontahedron_inverted, "LLLL"),
+    'kD' : ("Pentakis dodecahedron", polymath.pentakis_dodecahedron_faces, pentakis_dodecahedron_inverted, "LLL"),
     'gD' : ("Pentagonal hexecontahedron", polymath.pentagonal_hexecontahedron_faces, pentagonal_hexecontahedron_inverted, "SSSLL"),
     'mD' : ("Disdyakis triacontahedron",  polymath.disdyakis_triacontahedron_faces, (), "LLL"),
 }
