@@ -139,125 +139,141 @@ def archimedean_faces(plist):
 
     return tuple( face_list )
 
-def rhombicosidodecahedron_points():
+#
+# permutations
+#
 
-    points = []
-    phi = ( sqrt(5.) + 1. ) / 2.
-    phi2 = phi**2
-    phi3 = phi**3
+def even_perms( (x, y, z) ):
+    return [ (x, y, z), (z, x, y), (y, z, x) ]
 
-    for x in (-1, 1):
-        for y in (-1, 1):
-            for z in (-phi3, phi3):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
+def all_perms( (x, y, z) ):
+    return even_perms( (x, y, z) ) + even_perms( (y, x, z) )
 
-    for x in (-phi2, phi2):
-        for y in (-phi, phi):
-            for z in (-2*phi, 2*phi):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
+def sign_perms( (x, y, z) ):
+    xset = yset = zset = (-1., 1.)
+    if x == 0: xset = (1,)
+    if y == 0: yset = (1,)
+    if z == 0: zset = (1,)
+    return [ (x*sx, y*sy, z*sz) for sx in xset for sy in yset for sz in zset ]
 
-    for x in (-2-phi, 2+phi):
-        for z in (-phi2, phi2):
-            points.append( (x, 0, z) )
-            points.append( (z, x, 0) )
-            points.append( (0, z, x) )
+def even_perms_sign( p ):
+    return [ ep for sp in sign_perms(p) for ep in even_perms(sp) ]
 
-    return points
+def all_perms_sign( p ):
+    return [ ap for sp in sign_perms(p) for ap in all_perms(sp) ]
 
-def rhombicosidodecahedron_faces():
-    return archimedean_faces(rhombicosidodecahedron_points())
+#
+# consts
+#
 
-def deltoidal_hexecontahedron_faces():
-    return dual_faces(rhombicosidodecahedron_points())
+phi = ( sqrt(5.) + 1. ) / 2.
 
-def icosidodecahedron_points():
+#
+# Platonic solids
+#
 
-    points = []
-    phi = ( sqrt(5.) + 1. ) / 2.
-    phi2 = phi**2
-    phi3 = phi**3
-
-    for x in (-phi, phi):
-        points.append( (x, 0, 0) )
-        points.append( (0, x, 0) )
-        points.append( (0, 0, x) )
-
-    for x in (-.5, .5):
-        for y in (-phi/2., phi/2.):
-            for z in (-(1+phi)/2., (1+phi)/2.):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
-
-    return points
-
-def rhombic_triacontahedron_faces():
-    return dual_faces(icosidodecahedron_points())
-
-def icosidodecahedron_faces():
-    return archimedean_faces(icosidodecahedron_points())
-
-def tetraedron_points():
+def tetrahedron_points():
     points = []
     for x in (-1., 1.):
         points.append( (x, 0, -1./sqrt(2.)) )
         points.append( (0, x,  1./sqrt(2.)) )
     return points
 
-def tetraedron_faces():
-    return dual_faces(tetraedron_points())
+def cube_points():
+    return sign_perms( (1, 1, 1) )
 
+def icosahedron_points():
+    return even_perms_sign( (0, 1, phi) )
 
-def truncated_icosidodecahedron_points():
+# faces
 
+def tetrahedron_faces(): # T
+    return dual_faces(tetrahedron_points())
+
+def octahedron_faces(): # O
+    return dual_faces(cube_points())
+
+def cube_faces(): # C
+    return archimedean_faces(cube_points())
+
+def dodecahedron_faces(): # D
+    return dual_faces(icosahedron_points())
+
+def icosahedron_faces(): # I
+    return archimedean_faces(icosahedron_points())
+
+#
+# Archimedean solids
+#
+
+def truncated_tetrahedron_points():
     points = []
-    phi = ( sqrt(5.) + 1. ) / 2.
-    phi2 = phi**2
 
-    for x in (-1/phi, 1/phi):
-        for y in (-1/phi, 1/phi):
-            for z in (-3-phi, 3+phi):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
+    even_minusses = ( ( 3., 1., 1.),
+                      ( 3.,-1.,-1.),
+                      (-3., 1.,-1.),
+                      (-3.,-1., 1.) )
 
-    for x in (-2/phi, 2/phi):
-        for y in (-phi, phi):
-            for z in (-1-2*phi, 1+2*phi):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
-
-    for x in (-1/phi, 1/phi):
-        for y in (-phi2, phi2):
-            for z in (1-3*phi, -1+3*phi):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
-
-    for x in (1-2*phi, -1+2*phi):
-        for y in (-2, 2):
-            for z in (-2-phi, 2+phi):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
-
-    for x in (-phi, phi):
-        for y in (-3, 3):
-            for z in (-2*phi, 2*phi):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
+    for x, y, z in even_minusses:
+        points += even_perms( (x, y, z) )
 
     return points
 
-def disdyakis_triacontahedron_faces():
-    return dual_faces(truncated_icosidodecahedron_points())
+def truncated_cube_points():
+    return even_perms_sign( (sqrt(2.)-1., 1, 1) )
 
+def truncated_cuboctahedron_points():
+    return all_perms_sign( (1, 1.+sqrt(2.), 1.+2*sqrt(2.)) )
+
+def truncated_octahedron_points():
+    return all_perms_sign( (0, 1, 2) )
+
+def truncated_dodecahedron_points():
+    return even_perms_sign( (0, 1./phi, 2.+phi) ) + \
+           even_perms_sign( (1./phi, phi, 2*phi) ) + \
+           even_perms_sign( (phi, 2, phi**2) )
+
+def truncated_icosidodecahedron_points():
+    return even_perms_sign( (1/phi, 1/phi, 3+phi) ) + \
+           even_perms_sign( (2/phi, phi, 1+2*phi) ) + \
+           even_perms_sign( (1/phi, phi**2, -1+3*phi) ) + \
+           even_perms_sign( (-1+2*phi, 2, 2+phi) ) + \
+           even_perms_sign( (phi, 3, 2*phi) )
+
+def truncated_icosahedron_points():
+    return even_perms_sign( (2, 1+2*phi, phi) ) + \
+           even_perms_sign( (1, 2+phi, 2*phi) ) + \
+           even_perms_sign( (1, 3*phi, 0) )
+
+def cuboctahedron_points():
+    return even_perms_sign( (1, 1, 0) )
+
+def icosidodecahedron_points():
+    return even_perms_sign( (phi, 0, 0) ) + \
+           even_perms_sign( (1/2., phi/2., (1.+phi)/2.) )
+
+def rhombicuboctahedron_points():
+    return even_perms_sign( (1, 1, 1+sqrt(2)) )
+
+def rhombicosidodecahedron_points():
+    return even_perms_sign( (1, 1, phi**3) ) + \
+           even_perms_sign( (phi**2, phi, 2*phi) ) + \
+           even_perms_sign( (2+phi, 0, phi**2) )
+
+def snub_cube_points():
+    points = []
+    xi = ( ( 17.+3.*sqrt(33.) )**(1./3.) -
+           (-17.+3.*sqrt(33.) )**(1./3.) - 1.) / 3.
+
+    even_plusses = ( (-1.,-1.,-1.), (-1., 1., 1.), ( 1.,-1., 1.), ( 1., 1.,-1) )
+    coords = ( ( 1., xi, 1./xi),
+               (-xi,-1.,-1./xi) )
+
+    for sx, sy, sz in even_plusses:
+        for x,y,z in coords:
+            points += even_perms( (x*sx, y*sy, z*sz) )
+
+    return points
 
 def snub_dodecahedron_points():
     points = []
@@ -278,93 +294,95 @@ def snub_dodecahedron_points():
         ((a + b/phi - phi), (a*phi - b + 1/phi), (a/phi + b*phi + 1)),
     )
 
-    for mx, my, mz in even_plusses:
-        for ax,ay,az in coords:
-            x, y, z = mx*ax, my*ay, mz*az
-            points.append( (x, y, z) )
-            points.append( (z, x, y) )
-            points.append( (y, z, x) )
+    for sx, sy, sz in even_plusses:
+        for x,y,z in coords:
+            points += even_perms( (x*sx, y*sy, z*sz) )
 
     return points
 
-def pentagonal_hexecontahedron_faces():
-    return dual_faces(snub_dodecahedron_points())
+# faces
 
-def cube_points():
-    points = []
+def truncated_tetrahedron_faces(): # tT
+    return archimedean_faces(truncated_tetrahedron_points())
 
-    for x in (-1., 1):
-        for y in (-1., 1):
-            for z in (-1., 1):
-                points.append( (x, y, z) )
+def truncated_cube_faces(): # tC
+    return archimedean_faces(truncated_cube_points())
 
-    return points
+def truncated_cuboctahedron_faces(): # bC
+    return archimedean_faces(truncated_cuboctahedron_points())
 
-def octahedron_faces():
-    return dual_faces(cube_points())
+def truncated_octahedron_faces(): # tO
+    return archimedean_faces(truncated_octahedron_points())
 
-def rhombicuboctahedron_points():
-    points = []
+def truncated_dodecahedron_faces(): # tD
+    return archimedean_faces(truncated_dodecahedron_points())
 
-    for x in (-1., 1):
-        for y in (-1., 1):
-            for z in (-1.-sqrt(2), 1+sqrt(2)):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
+def truncated_icosidodecahedron_faces(): # bD
+    return archimedean_faces(truncated_icosidodecahedron_points())
 
-    return points
+def truncated_icosahedron_faces(): # tI
+    return archimedean_faces(truncated_icosahedron_points())
 
-def deltoidal_icositetrahedron_faces():
+def cuboctahedron_faces(): # aC
+    return archimedean_faces(cuboctahedron_points())
+
+def icosidodecahedron_faces(): # aD
+    return archimedean_faces(icosidodecahedron_points())
+
+def rhombicuboctahedron_faces(): # eC
+    return archimedean_faces(rhombicuboctahedron_points())
+
+def rhombicosidodecahedron_faces(): # eD
+    return archimedean_faces(rhombicosidodecahedron_points())
+
+def snub_cube_faces(): # sC
+    return archimedean_faces(snub_cube_points())
+
+def snub_dodecahedron_faces(): # sD
+    return archimedean_faces(snub_dodecahedron_points())
+
+#
+# Catalan solids
+#
+
+# faces
+
+def triakis_tetrahedron_faces(): # kT
+    return dual_faces(truncated_tetrahedron_points())
+
+def triakis_octahedron_faces(): # kO
+    return dual_faces(truncated_cube_points())
+
+def disdyakis_dodecahedron_faces(): # mC
+    return dual_faces(truncated_cuboctahedron_points())
+
+def tetrakis_hexahedron_faces(): # kC
+    return dual_faces(truncated_octahedron_points())
+
+def triakis_icosahedron_faces(): # kI
+    return dual_faces(truncated_dodecahedron_points())
+
+def disdyakis_triacontahedron_faces(): # mD
+    return dual_faces(truncated_icosidodecahedron_points())
+
+def pentakis_dodecahedron_faces(): # kD
+    return dual_faces(truncated_icosahedron_points())
+
+def rhombic_dodecahedron_faces(): # jC
+    return dual_faces(cuboctahedron_points())
+
+def rhombic_triacontahedron_faces(): # jD
+    return dual_faces(icosidodecahedron_points())
+
+def deltoidal_icositetrahedron_faces(): # oC
     return dual_faces(rhombicuboctahedron_points())
 
+def deltoidal_hexecontahedron_faces(): # oD
+    return dual_faces(rhombicosidodecahedron_points())
 
-def snub_cube_points():
-    points = []
-    xi = ( ( 17.+3.*sqrt(33.) )**(1./3.) -
-           (-17.+3.*sqrt(33.) )**(1./3.) - 1.) / 3.
-
-    even_plusses = ( (-1.,-1.,-1.), (-1., 1., 1.), ( 1.,-1., 1.), ( 1., 1.,-1) )
-    coords = ( ( 1., xi, 1./xi),
-               (-xi,-1.,-1./xi) )
-
-    for mx, my, mz in even_plusses:
-        for ax,ay,az in coords:
-            x, y, z = mx*ax, my*ay, mz*az
-            points.append( (x, y, z) )
-            points.append( (z, x, y) )
-            points.append( (y, z, x) )
-
-    return points
-
-def pentagonal_icositetrahedron_faces():
+def pentagonal_icositetrahedron_faces(): # gC
     return dual_faces(snub_cube_points())
 
-def truncated_icosahedron_points():
-    points = []
-    phi = ( sqrt(5.) + 1. ) / 2.
+def pentagonal_hexecontahedron_faces(): # gD
+    return dual_faces(snub_dodecahedron_points())
 
-    for x in (-2., 2.):
-        for y in (-1-2*phi, 1+2*phi):
-            for z in (-phi, phi):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
-
-    for x in (-1., 1.):
-        for y in (-2-phi, 2+phi):
-            for z in (-2*phi, 2*phi):
-                points.append( (x, y, z) )
-                points.append( (z, x, y) )
-                points.append( (y, z, x) )
-
-    for x in (-1., 1.):
-        for y in (-3.*phi, 3*phi):
-            points.append( (x, y, 0) )
-            points.append( (0, x, y) )
-            points.append( (y, 0, x) )
-
-    return points
-
-def pentakis_dodecahedron_faces():
-    return dual_faces(truncated_icosahedron_points())

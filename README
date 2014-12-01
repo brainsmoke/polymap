@@ -1,8 +1,9 @@
-usage: polymap.py [-h] [--type {gC,gD,jD,kD,mD,oC,oD}] [--radius RADIUS]
-                  [--thickness THICKNESS] [--overhang OVERHANG]
-                  [--overcut OVERCUT] [--padding PADDING]
-                  [--sheetwidth SHEETWIDTH] [--cutwidth CUTWIDTH] [--flip]
-                  [--dpi DPI] [--invert]
+usage: polymap.py [-h]
+                  [--type {T,O,C,D,I,tT,tC,bC,tO,tD,bD,tI,aC,aD,eC,eD,sC,sD,kT,kO,mC,kC,kI,mD,kD,jC,jD,oC,oD,gC,gD}]
+                  [--radius RADIUS] [--thickness THICKNESS]
+                  [--overhang OVERHANG] [--overcut OVERCUT]
+                  [--padding PADDING] [--sheetwidth SHEETWIDTH]
+                  [--cutwidth CUTWIDTH] [--flip] [--dpi DPI] [--invert]
                   filename
 
 positional arguments:
@@ -10,7 +11,7 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  --type {gC,gD,jD,kD,mD,oC,oD}
+  --type {T,O,C,D,I,tT,tC,bC,tO,tD,bD,tI,aC,aD,eC,eD,sC,sD,kT,kO,mC,kC,kI,mD,kD,jC,jD,oC,oD,gC,gD}
                         solid type (Conway name)
   --radius RADIUS       polyhedron's radius (mm) (default: 100)
   --thickness THICKNESS
@@ -28,11 +29,35 @@ optional arguments:
 
 Supported solids:
 
-	gC: Pentagonal icositetrahedron
-	gD: Pentagonal hexecontahedron
-	jD: Rhombic triacontahedron
-	kD: Pentakis dodecahedron
+	T: Tetrahedron
+	O: Octahedron
+	C: Cube
+	D: Dodecahedron
+	I: Icosahedron
+	tT: Truncated tetrahedron
+	tC: Truncated cube
+	bC: Truncated cuboctahedron
+	tO: Truncated octahedron
+	tD: Truncated dodecahedron
+	bD: Truncated icosidodecahedron
+	tI: Truncated icosahedron
+	aC: Cuboctahedron
+	aD: Icosidodecahedron
+	eC: Rhombicuboctahedron
+	eD: Rhombicosidodecahedron
+	sC: Snub cube
+	sD: Snub dodecahedron
+	kT: Triakis tetrahedron
+	kO: Triakis octahedron
+	mC: Disdyakis dodecahedron
+	kC: Tetrakis hexahedron
+	kI: Triakis icosahedron
 	mD: Disdyakis triacontahedron
+	kD: Pentakis dodecahedron
+	jC: Rhombic dodecahedron
+	jD: Rhombic triacontahedron
 	oC: Deltoidal icositetrahedron
 	oD: Deltoidal hexecontahedron
+	gC: Pentagonal icositetrahedron
+	gD: Pentagonal hexecontahedron
  

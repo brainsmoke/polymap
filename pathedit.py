@@ -220,3 +220,110 @@ def grow(poly, width):
 
     return points
 
+TOP, LEFT, BOTTOM, RIGHT, INSIDE = 0, 1, 2, 3, 4
+
+pmap = [ 1, 2, 4, 8 ]
+
+def bbox_phase( (start, phase), (x, y), (min_x, min_y, max_x, max_y) ):
+    if start == INSIDE:
+        if y > max_y:
+            return TOP, 0
+        elif x < min_x:
+            return LEFT, 0
+        elif y < min_y:
+            return BOTTOM, 0
+        elif x > max_x:
+            return RIGHT, 0
+
+    cur = (start + phase) % 4
+
+    pset = 0
+
+    if y > max_y:
+        pset |= 1
+    if x < min_x:
+        pset |= 2
+    if y < min_y:
+        pset |= 4
+    if x > max_x:
+        pset |= 8
+
+    if pset & pmap[cur]:
+        return (start, phase)
+
+    if pset & pmap[cur-1]:
+        return (start, phase-1)
+
+    if pset & pmap[(cur+1)%4]:
+        return (start, phase+1)
+
+    if pset & pmap[cur-2]:
+        print "EEK"
+        if phase > 0:
+            return (start, phase-2)
+        else:
+            return (start, phase+2)
+
+    raise Error("Meh!")
+
+def add_bbox_corners( (start, phase), (min_x, min_y, max_x, max_y), newpath ):
+
+    corners = ( (min_x, max_y), (min_x, min_y), (max_x, min_y), (max_x, max_y) )
+
+    if phase < 0:
+        start, stop, step = start-1, start+phase-1, -1
+    else:
+        start, stop, step = start, start+phase, 1
+
+    for i in range(start, stop, step):
+        newpath.append( corners[i%4] )
+
+def inside(pos, bbox):
+    min_x, min_y, max_x, max_y = bbox
+    x, y = pos
+    return min_x <= x <= max_x and min_y <= y <= max_y
+
+def sloppy_bbox_clip(path, bbox):
+
+    if len(path) < 2:
+        return []
+
+    for i in xrange(len(path)):
+        if inside(path[i], bbox):
+            path = path[i+1:]+path[:i+1]
+            break
+
+    newpath = []
+    exit_pos = None
+    phase = INSIDE, 0
+
+    for pos in path:
+        if inside(pos, bbox):
+
+            if exit_pos != None:
+                newpath.append( exit_pos )
+                add_bbox_corners( phase, bbox, newpath )
+                if last_pos != exit_pos:
+                    newpath.append( last_pos )
+                exit_pos = None
+
+            phase = INSIDE, 0
+            newpath.append( pos )
+        else:
+            phase = bbox_phase(phase, pos, bbox)
+            if exit_pos == None:
+                exit_pos = pos
+
+        last_pos = pos
+
+    if phase[0] != INSIDE:
+        phase = bbox_phase(phase, exit_pos, bbox)
+
+    if abs(phase[1]) > 2:
+        print "ulikely bbox condition met, untested"
+        print phase
+        min_x, min_y, max_x, max_y = bbox
+        return [(min_x, max_y), (min_x, min_y), (max_x, min_y), (max_x, max_y)]
+
+    return newpath
+

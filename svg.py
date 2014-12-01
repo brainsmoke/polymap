@@ -42,6 +42,9 @@ def path(path, style=None):
 def polygon_path(coords):
     return 'M'+' L'.join( str(x)+' '+str(y) for x, y in coords )+' Z'
 
+def polygon_multipath(paths):
+    return '\n'.join(polygon_path(coords) for coords in paths)
+
 def text(x, y, text, id=None, transform=None, style=None):
     t = s = i = ''
 

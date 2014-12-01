@@ -2,7 +2,7 @@
 
 import math, sys, os
 
-import globe, svg, pathedit, render, projection, linear, polymath
+import globe, svg, pathedit, projection, linear, polymath
 
 #
 # settings
@@ -39,12 +39,9 @@ def get_projection_paths(faces, globe, nodges, radius, thickness, overhang, over
 
     paths = []
     for i, face in enumerate(faces):
+        print "face (%d/%d)" % (i,len(faces))
         eye = face['pos']
         north = face['points'][0]
-
-        proj = projection.inverse_project(globe, eye=eye, north=north, front=True)
-        engraving = [ [ (xflip*x*radius,-y*radius, vis) for x,y,vis in p ]
-                      for p in proj if len(p) > 2 ]
 
         edges = [ (xflip*x*radius,-y*radius) for x,y,z in
                 projection.look_at(face['points'], eye=eye, north=north) ]
@@ -55,24 +52,39 @@ def get_projection_paths(faces, globe, nodges, radius, thickness, overhang, over
                                                  overcut=overcut),
                               cutwidth/2.)
 
-        paths.append( { 'bbox'      : get_bounding_box(shape),
-                        'borders'   : svg.polygon_path(shape),
-                        'projection': render.regions_path(engraving),
+        bbox = get_bounding_box(shape)
+
+        proj = projection.inverse_project(globe, eye=eye, north=north, front=True)
+
+        engraving = []
+        for p in proj:
+            new_path = pathedit.sloppy_bbox_clip( [ (xflip*x*radius,-y*radius) for x,y in p ], bbox )
+            if len(new_path) > 3:
+                engraving.append(new_path)
+
+        # add dummy box to keep inkscape happy
+        if len(engraving) == 0:
+            min_x, min_y = bbox[:2]
+            engraving = [ [ (min_x-1, min_y), (min_x-1, min_y-1), (min_x, min_y-1), (min_x, min_y) ] ]
+
+        paths.append( { 'bbox'      : bbox,
+                        'borders'   : shape,
+                        'projection': engraving,
                         'neighbours': face['neighbours'],
                         'points'    : edges } )
 
     return paths
 
 
-def inkscape_batch_intersection(filename, face_count, inverted):
+def inkscape_batch_intersection(filename, face_count, invert):
     argv = [ 'inkscape', filename ]
 
-    for i in xrange(face_count):
-        if i in inverted:
-            action = 'SelectionDiff'
-        else:
-            action = 'SelectionIntersect'
+    if invert:
+        action = 'SelectionDiff'
+    else:
+        action = 'SelectionIntersect'
 
+    for i in xrange(face_count):
         argv += [ '--select=engrave_'+str(i), '--verb', 'SelectionUnGroup', '--verb', action, '--verb', 'EditDeselect' ]
 
     argv += [ '--verb', 'FileSave', '--verb', 'FileQuit' ]
@@ -102,9 +114,13 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding):
     for i, face in enumerate(facepaths):
 
         x, y = pos[i]
-        borders = svg.path( face['borders'], style=cut )
-        engraving = svg.group( svg.path( face['borders'], style=engrave )+
-                               svg.path( face['projection'], style=engrave ),
+        borders_path = svg.polygon_path(face['borders'])
+        projection_path = svg.polygon_multipath(face['projection'])
+
+        borders = svg.path( borders_path, style=cut )
+
+        engraving = svg.group( svg.path( borders_path, style=engrave )+
+                               svg.path( projection_path, style=engrave ),
                                id='engrave_'+str(i) )
         text = svg.text(0,25, str(i), style=comment+';'+textstyle )
 
@@ -119,8 +135,8 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding):
 
     f.write(svg.footer())
 
-def render_polyhedron_map(filename, faces, inverted, nodges,
-                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip):
+def render_polyhedron_map(filename, faces, nodges,
+                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert):
 
     g = globe.get_globe_cached()
     facepaths = get_projection_paths(faces, g, nodges=nodges,
@@ -134,39 +150,51 @@ def render_polyhedron_map(filename, faces, inverted, nodges,
     write_polygon_projection_svg(f, facepaths, sheetwidth, padding)
     f.close()
 
-    inkscape_batch_intersection(filename, len(faces), inverted)
+    inkscape_batch_intersection(filename, len(faces), invert)
 
+projections = (
 
-#
-# Sadly, some tiles have to me manually inverted
-#
-deltoidal_hexecontahedron_inverted = (13, 19, 43, 47, 46)
-rhombictriacontahedron_inverted = (28,)
-pentagonal_hexecontahedron_inverted = (40,41,43,46)
-deltoidal_icositetrahedron_inverted = (22,)
-pentagonal_icositetrahedron_inverted = (19, 4)
-pentakis_dodecahedron_inverted = (23,)
+    ('T', "Tetrahedron", polymath.tetrahedron_faces, "LLL"),
+    ('O', "Octahedron", polymath.octahedron_faces, "LLL"),
+    ('C', "Cube", polymath.cube_faces, "LLLL"),
+    ('D', "Dodecahedron", polymath.dodecahedron_faces, "LLLL"),
+    ('I', "Icosahedron", polymath.icosahedron_faces, "LLL"),
+    ('tT', "Truncated tetrahedron", polymath.truncated_tetrahedron_faces, "LLLLLL"),
+    ('tC', "Truncated cube", polymath.truncated_cube_faces, "LLLLLLLL"),
+    ('bC', "Truncated cuboctahedron", polymath.truncated_cuboctahedron_faces, "LLLLLLLL"),
+    ('tO', "Truncated octahedron", polymath.truncated_octahedron_faces, "LLLLLL"),
+    ('tD', "Truncated dodecahedron", polymath.truncated_dodecahedron_faces, "LLLLLLLLLL"),
+    ('bD', "Truncated icosidodecahedron", polymath.truncated_icosidodecahedron_faces, "LLLLLLLLLL"),
+    ('tI', "Truncated icosahedron", polymath.truncated_icosahedron_faces, "LLLLLL"),
+    ('aC', "Cuboctahedron", polymath.cuboctahedron_faces, "LLLL"),
+    ('aD', "Icosidodecahedron", polymath.icosidodecahedron_faces, "LLLLL"),
+    ('eC', "Rhombicuboctahedron", polymath.rhombicuboctahedron_faces, "LLLL"),
+    ('eD', "Rhombicosidodecahedron", polymath.rhombicosidodecahedron_faces, "LLLLL"),
+    ('sC', "Snub cube", polymath.snub_cube_faces, "LLLL"),
+    ('sD', "Snub dodecahedron", polymath.snub_dodecahedron_faces, "LLLLL"),
+    ('kT', "Triakis tetrahedron", polymath.triakis_tetrahedron_faces, "LLL"),
+    ('kO', "Triakis octahedron", polymath.triakis_octahedron_faces, "LLL"),
+    ('mC', "Disdyakis dodecahedron", polymath.disdyakis_dodecahedron_faces, "LLL"),
+    ('kC', "Tetrakis hexahedron", polymath.tetrakis_hexahedron_faces, "LLL"),
+    ('kI', "Triakis icosahedron", polymath.triakis_icosahedron_faces, "LLL"),
+    ('mD', "Disdyakis triacontahedron", polymath.disdyakis_triacontahedron_faces, "LLL"),
+    ('kD', "Pentakis dodecahedron", polymath.pentakis_dodecahedron_faces, "LLL"),
+    ('jC', "Rhombic dodecahedron", polymath.rhombic_dodecahedron_faces, "LLLL"),
+    ('jD', "Rhombic triacontahedron", polymath.rhombic_triacontahedron_faces, "LLLL"),
+    ('oC', "Deltoidal icositetrahedron", polymath.deltoidal_icositetrahedron_faces, "SLLS"),
+    ('oD', "Deltoidal hexecontahedron", polymath.deltoidal_hexecontahedron_faces, "SLLS"),
+    ('gC', "Pentagonal icositetrahedron", polymath.pentagonal_icositetrahedron_faces, "SSSLL"),
+    ('gD', "Pentagonal hexecontahedron", polymath.pentagonal_hexecontahedron_faces, "SSSLL"),
 
-projections = {
-    'oC' : ("Deltoidal icositetrahedron", polymath.deltoidal_icositetrahedron_faces, deltoidal_icositetrahedron_inverted, "SLLS"),
-    'gC' : ("Pentagonal icositetrahedron", polymath.pentagonal_icositetrahedron_faces, pentagonal_icositetrahedron_inverted, "SSSLL"),
-    'eD' : ("Rhombicosidodecahedron",  polymath.rhombicosidodecahedron_faces, (), "LLLLL"),
-    'oD' : ("Deltoidal hexecontahedron",  polymath.deltoidal_hexecontahedron_faces, deltoidal_hexecontahedron_inverted, "SLLS"),
-    'aD' : ("Icosidodecahedron",  polymath.icosidodecahedron_faces, (), "LLLLL"),
-    'jD' : ("Rhombic triacontahedron",    polymath.rhombic_triacontahedron_faces, rhombictriacontahedron_inverted, "LLLL"),
-    'kD' : ("Pentakis dodecahedron", polymath.pentakis_dodecahedron_faces, pentakis_dodecahedron_inverted, "LLL"),
-    'gD' : ("Pentagonal hexecontahedron", polymath.pentagonal_hexecontahedron_faces, pentagonal_hexecontahedron_inverted, "SSSLL"),
-    'mD' : ("Disdyakis triacontahedron",  polymath.disdyakis_triacontahedron_faces, (), "LLL"),
-}
+)
 
 if __name__ == '__main__':
 
     import argparse
 
-    type_choices = projections.keys()
-    type_choices.sort()
+    type_choices = [ x[0] for x in projections ]
 
-    epilog = "Supported solids:\n\n" + '\n'.join("\t"+k+': '+projections[k][0] for k in type_choices) + '\n '
+    epilog = "Supported solids:\n\n" + '\n'.join("\t"+name+': '+desc for name,desc,_,_ in projections) + '\n '
 
     parser = argparse.ArgumentParser(epilog=epilog,formatter_class=argparse.RawDescriptionHelpFormatter)
 
@@ -191,14 +219,13 @@ if __name__ == '__main__':
 
     scale = args.dpi/25.4
 
-    _, faces_func, inverted, nodges = projections[args.type]
+    for name, _, faces_func, nodges in projections:
+        if name == args.type:
+            break
 
     faces = faces_func()
 
-    if args.invert:
-        inverted = tuple( x for x in xrange(len(faces)) if x not in inverted )
-
-    render_polyhedron_map(args.filename, faces, inverted, nodges,
+    render_polyhedron_map(args.filename, faces, nodges,
                           radius=args.radius*scale,
                           thickness=args.thickness*scale,
                           overhang=args.overhang*scale,
@@ -206,4 +233,5 @@ if __name__ == '__main__':
                           cutwidth=args.cutwidth*scale,
                           padding=args.padding*scale,
                           sheetwidth=args.sheetwidth*scale,
-                          flip=args.flip)
+                          flip=args.flip,
+                          invert=args.invert)

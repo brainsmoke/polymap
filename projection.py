@@ -26,38 +26,30 @@ def inverse_project(globe, eye, center=(0,0,0), north=(0,1,0), front=True):
     r = []
     for path in paths:
 
-        visible = True
+        visible = False
         last = None
         new_path = []
 
-        for i in xrange(len(path)):
-            z = path[i][2]+d_center
-            if z < .5:
-                path = path[i:]+path[:i]+[path[i]]
-                visible = False
-                break
-
         for v in path:
-            z = v[2]+d_center
-            if z >= .5:
+
+            x, y, z = v
+            z = z + d_center
+
+#            if z <= 0.:
+#                d_underest = ( abs(x)+abs(y) ) / 2.
+#                if d_underest > 0.:
+#                    #assumed to be pruned in bbox phase
+#                    new_path.append( (x/d_underest, y/d_underest) )
+#            else:
+            if z > 0.:
                 m = d_center/z
-                if not visible:
-                    new_path.append( (last[0]*m, last[1]*m, True ) )
+                x, y = x*m, y*m
+                if x*x + y*y < 1.:
+                    visible = True
 
-                new_path.append( (v[0]*m, v[1]*m, False) )
-                visible = True
-            else:
-                if visible:
-                    m = d_center/z
-                    new_path.append( (v[0]*m, v[1]*m, True))
-                    r.append(new_path)
-                    new_path = []
+                new_path.append( (x, y) )
 
-                visible = False
-
-            last = v
-
-        if len(new_path) > 0:
+        if visible and len(new_path) > 3:
             r.append(new_path)
 
     return r
