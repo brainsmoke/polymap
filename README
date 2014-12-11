@@ -27,21 +27,21 @@ optional arguments:
   --dpi DPI             dpi used for svg, (default: 90, as used by inkscape)
   --invert              engrave seas instead of landmass
 
-Supported solids:
+Supported solids: 
 
-	T: Tetrahedron
-	O: Octahedron
-	C: Cube
+	T: Tetrahedron (???)
+	O: Octahedron (???)
+	C: Cube (???)
 	D: Dodecahedron
 	I: Icosahedron
-	tT: Truncated tetrahedron
-	tC: Truncated cube
+	tT: Truncated tetrahedron (???)
+	tC: Truncated cube (???)
 	bC: Truncated cuboctahedron
-	tO: Truncated octahedron
+	tO: Truncated octahedron (???)
 	tD: Truncated dodecahedron
 	bD: Truncated icosidodecahedron
 	tI: Truncated icosahedron
-	aC: Cuboctahedron
+	aC: Cuboctahedron (???)
 	aD: Icosidodecahedron
 	eC: Rhombicuboctahedron
 	eD: Rhombicosidodecahedron
@@ -60,4 +60,12 @@ Supported solids:
 	oD: Deltoidal hexecontahedron
 	gC: Pentagonal icositetrahedron
 	gD: Pentagonal hexecontahedron
- 
+
+Errata:
+
+    - Solids marked ??? may have too steep dihedral angles
+      (different nodges are required)
+    - this script invokes inkscape to do a boolean path intersection operation
+      this seems to fail for the tC solid (Europe's missing.)
+
+    

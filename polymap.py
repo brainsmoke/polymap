@@ -154,19 +154,19 @@ def render_polyhedron_map(filename, faces, nodges,
 
 projections = (
 
-    ('T', "Tetrahedron", polymath.tetrahedron_faces, "LLL"),
-    ('O', "Octahedron", polymath.octahedron_faces, "LLL"),
-    ('C', "Cube", polymath.cube_faces, "LLLL"),
+    ('T', "Tetrahedron (???)", polymath.tetrahedron_faces, "LLL"),
+    ('O', "Octahedron (???)", polymath.octahedron_faces, "LLL"),
+    ('C', "Cube (???)", polymath.cube_faces, "LLLL"),
     ('D', "Dodecahedron", polymath.dodecahedron_faces, "LLLLL"),
     ('I', "Icosahedron", polymath.icosahedron_faces, "LLL"),
-    ('tT', "Truncated tetrahedron", polymath.truncated_tetrahedron_faces, "LLLLLL"),
-    ('tC', "Truncated cube", polymath.truncated_cube_faces, "LLLLLLLL"),
+    ('tT', "Truncated tetrahedron (???)", polymath.truncated_tetrahedron_faces, "LLLLLL"),
+    ('tC', "Truncated cube (???)", polymath.truncated_cube_faces, "LLLLLLLL"),
     ('bC', "Truncated cuboctahedron", polymath.truncated_cuboctahedron_faces, "LLLLLLLL"),
-    ('tO', "Truncated octahedron", polymath.truncated_octahedron_faces, "LLLLLL"),
+    ('tO', "Truncated octahedron (???)", polymath.truncated_octahedron_faces, "LLLLLL"),
     ('tD', "Truncated dodecahedron", polymath.truncated_dodecahedron_faces, "LLLLLLLLLL"),
     ('bD', "Truncated icosidodecahedron", polymath.truncated_icosidodecahedron_faces, "LLLLLLLLLL"),
     ('tI', "Truncated icosahedron", polymath.truncated_icosahedron_faces, "LLLLLL"),
-    ('aC', "Cuboctahedron", polymath.cuboctahedron_faces, "LLLL"),
+    ('aC', "Cuboctahedron (???)", polymath.cuboctahedron_faces, "LLLL"),
     ('aD', "Icosidodecahedron", polymath.icosidodecahedron_faces, "LLLLL"),
     ('eC', "Rhombicuboctahedron", polymath.rhombicuboctahedron_faces, "LLLL"),
     ('eD', "Rhombicosidodecahedron", polymath.rhombicosidodecahedron_faces, "LLLLL"),
@@ -194,7 +194,16 @@ if __name__ == '__main__':
 
     type_choices = [ x[0] for x in projections ]
 
-    epilog = "Supported solids:\n\n" + '\n'.join("\t"+name+': '+desc for name,desc,_,_ in projections) + '\n '
+    epilog = 'Supported solids: \n\n'+\
+    '\n'.join("\t"+name+': '+desc for name,desc,_,_ in projections) + '\n\n' +\
+    """Errata:
+
+    - Solids marked ??? may have too steep dihedral angles
+      (different nodges are required)
+    - this script invokes inkscape to do a boolean path intersection operation
+      this seems to fail for the tC solid (Europe's missing.)
+
+    """
 
     parser = argparse.ArgumentParser(epilog=epilog,formatter_class=argparse.RawDescriptionHelpFormatter)
 
