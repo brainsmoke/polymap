@@ -90,7 +90,7 @@ def inkscape_batch_intersection(filename, face_count, invert):
     argv += [ '--verb', 'FileSave', '--verb', 'FileQuit' ]
     os.spawnvp(os.P_WAIT, 'inkscape', argv)
 
-def write_polygon_projection_svg(f, facepaths, sheetwidth, padding):
+def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, use_map):
 
     x, y = padding, padding
     w, cur_h = 0., 0.
@@ -119,26 +119,37 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding):
 
         borders = svg.path( borders_path, style=cut )
 
-        engraving = svg.group( svg.path( borders_path, style=engrave )+
-                               svg.path( projection_path, style=engrave ),
-                               id='engrave_'+str(i) )
-        text = svg.text(0,25, str(i), style=comment+';'+textstyle )
+        if use_map:
+            engraving = svg.group( svg.path( borders_path, style=engrave )+
+                                   svg.path( projection_path, style=engrave ),
+                                   id='engrave_'+str(i) )
+        else:
+            engraving = ''
 
-        for n, a, b in zip(face['neighbours'],
-                           face['points'], face['points'][1:]+face['points'][:1]):
-            x1, y1 = a
-            x2, y2 = b
-            dx, dy = (x1+x2)/3., (y1+y2)/3.+15
-            text += svg.text(dx,dy, str(n), style=comment+';'+smalltextstyle )
+        if use_numbers:
+            text = svg.text(0,25, str(i), style=comment+';'+textstyle )
+
+            for n, a, b in zip(face['neighbours'],
+                               face['points'], face['points'][1:]+face['points'][:1]):
+                x1, y1 = a
+                x2, y2 = b
+                dx, dy = (x1+x2)/3., (y1+y2)/3.+15
+                text += svg.text(dx,dy, str(n), style=comment+';'+smalltextstyle )
+        else:
+            text = ''
 
         f.write(svg.group( svg.group(borders + engraving) + text, transform='translate('+str(x)+' '+str(y)+')', id='face_'+str(i) ))
 
     f.write(svg.footer())
 
 def render_polyhedron_map(filename, faces, nodges,
-                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert):
+                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert, use_numbers, use_map):
 
-    g = globe.get_globe_cached()
+    if use_map:
+        g = globe.get_globe_cached()
+    else:
+        g = []
+
     facepaths = get_projection_paths(faces, g, nodges=nodges,
                                      radius=radius,
                                      thickness=thickness,
@@ -147,10 +158,11 @@ def render_polyhedron_map(filename, faces, nodges,
                                      cutwidth=cutwidth,
                                      flip=flip)
     f = open(filename, "w")
-    write_polygon_projection_svg(f, facepaths, sheetwidth, padding)
+    write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, use_map)
     f.close()
 
-    inkscape_batch_intersection(filename, len(faces), invert)
+    if use_map:
+        inkscape_batch_intersection(filename, len(faces), invert)
 
 projections = (
 
@@ -219,6 +231,8 @@ if __name__ == '__main__':
     parser.add_argument("--flip", help="engrave on the backside", action="store_true")
     parser.add_argument("--dpi", help="dpi used for svg, (default: 90, as used by inkscape)", type=float, default=90)
     parser.add_argument("--invert", help="engrave seas instead of landmass", action="store_true")
+    parser.add_argument("--nonumbers", help="do not plot number hints", action="store_true")
+    parser.add_argument("--noengraving", help="do not plot world map", action="store_true")
 
     args = parser.parse_args()
 
@@ -243,4 +257,6 @@ if __name__ == '__main__':
                           padding=args.padding*scale,
                           sheetwidth=args.sheetwidth*scale,
                           flip=args.flip,
-                          invert=args.invert)
+                          invert=args.invert,
+                          use_numbers=not args.nonumbers,
+                          use_map=not args.noengraving)
