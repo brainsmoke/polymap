@@ -157,7 +157,7 @@ projections = (
     ('T', "Tetrahedron", polymath.tetrahedron_faces, "LLL"),
     ('O', "Octahedron", polymath.octahedron_faces, "LLL"),
     ('C', "Cube", polymath.cube_faces, "LLLL"),
-    ('D', "Dodecahedron", polymath.dodecahedron_faces, "LLLL"),
+    ('D', "Dodecahedron", polymath.dodecahedron_faces, "LLLLL"),
     ('I', "Icosahedron", polymath.icosahedron_faces, "LLL"),
     ('tT', "Truncated tetrahedron", polymath.truncated_tetrahedron_faces, "LLLLLL"),
     ('tC', "Truncated cube", polymath.truncated_cube_faces, "LLLLLLLL"),
