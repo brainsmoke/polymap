@@ -86,12 +86,15 @@ def get_regions(filename):
 def get_globe():
     return join_adjacent(mercator_to_globe(get_regions("data/24577.dat")), dist=squared_distance)
 
-def get_globe_cached():
+def get_map(filename):
     regions = []
-    for r in file("data/coastlines.paths").readlines():
-		regions.append(tuple(tuple(float(x) for x in p.split(',')) for p in r.split('|')))
-		
+    for r in file(filename).readlines():
+        regions.append(tuple(tuple(float(x) for x in p.split(',')) for p in r.split('|')))
+
     return tuple(regions)
+
+def get_globe_cached():
+    return get_map("maps/earth.paths")
 
 def look_at(path, eye, center=(0,0,0), north=(0,1,0)):
     f     = normalize(vector_sub(center, eye))
