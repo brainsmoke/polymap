@@ -2,7 +2,7 @@
 
 import math, sys, os
 
-import globe, svg, pathedit, projection, linear, polymath
+import globe, svg, pathedit, projection, linear, polymath, maps
 
 #
 # settings
@@ -143,10 +143,10 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
     f.write(svg.footer())
 
 def render_polyhedron_map(filename, faces, nodges,
-                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert, use_numbers, use_map):
+                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert, use_numbers, map_type):
 
-    if use_map:
-        g = globe.get_globe_cached()
+    if map_type != None:
+        g = globe.get_map(maps.map_file(map_type))
     else:
         g = []
 
@@ -158,10 +158,10 @@ def render_polyhedron_map(filename, faces, nodges,
                                      cutwidth=cutwidth,
                                      flip=flip)
     f = open(filename, "w")
-    write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, use_map)
+    write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, map_type != None)
     f.close()
 
-    if use_map:
+    if map_type != None:
         inkscape_batch_intersection(filename, len(faces), invert)
 
 projections = (
@@ -205,6 +205,7 @@ if __name__ == '__main__':
     import argparse
 
     type_choices = [ x[0] for x in projections ]
+    map_choices = maps.list_maps()
 
     epilog = 'Supported solids: \n\n'+\
     '\n'.join("\t"+name+': '+desc for name,desc,_,_ in projections) + '\n\n' +\
@@ -221,6 +222,7 @@ if __name__ == '__main__':
 
     parser.add_argument("filename", help="output svg", type=str)
     parser.add_argument("--type", help="solid type (Conway name)", choices=type_choices, default='oD')
+    parser.add_argument("--map", help="map engraving", choices=map_choices, default='earth')
     parser.add_argument("--radius", help="polyhedron's radius (mm) (default: 100)", type=float, default=100.)
     parser.add_argument("--thickness", help="material thickness (mm) (default: 3.)", type=float, default=3.)
     parser.add_argument("--overhang", help="overhang of nodges (mm) (default: .3)", type=float, default=.3)
@@ -235,6 +237,9 @@ if __name__ == '__main__':
     parser.add_argument("--noengraving", help="do not plot world map", action="store_true")
 
     args = parser.parse_args()
+
+    if args.noengraving:
+        args.map = None
 
     #
     # convert to inkscape sizes
@@ -259,4 +264,4 @@ if __name__ == '__main__':
                           flip=args.flip,
                           invert=args.invert,
                           use_numbers=not args.nonumbers,
-                          use_map=not args.noengraving)
+                          map_type=args.map)
