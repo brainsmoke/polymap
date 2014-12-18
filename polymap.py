@@ -30,7 +30,7 @@ def get_bounding_box(path):
 
     return (min_x, min_y, max_x, max_y)
 
-def get_projection_paths(faces, globe, nodges, radius, thickness, overhang, overcut, cutwidth, flip):
+def get_projection_paths(faces, globe, notches, radius, thickness, overhang, overcut, cutwidth, flip):
 
     if flip:
         xflip = -1.
@@ -46,7 +46,7 @@ def get_projection_paths(faces, globe, nodges, radius, thickness, overhang, over
         edges = [ (xflip*x*radius,-y*radius) for x,y,z in
                 projection.look_at(face['points'], eye=eye, north=north) ]
 
-        shape = pathedit.grow(pathedit.subdivide(edges, nodges, face['angles'],
+        shape = pathedit.grow(pathedit.subdivide(edges, notches, face['angles'],
                                                  thickness=thickness,
                                                  overhang=overhang,
                                                  overcut=overcut),
@@ -142,7 +142,7 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
 
     f.write(svg.footer())
 
-def render_polyhedron_map(filename, faces, nodges,
+def render_polyhedron_map(filename, faces, notches,
                           radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert, use_numbers, map_type):
 
     if map_type != None:
@@ -150,7 +150,7 @@ def render_polyhedron_map(filename, faces, nodges,
     else:
         g = []
 
-    facepaths = get_projection_paths(faces, g, nodges=nodges,
+    facepaths = get_projection_paths(faces, g, notches=notches,
                                      radius=radius,
                                      thickness=thickness,
                                      overhang=overhang,
@@ -212,7 +212,7 @@ if __name__ == '__main__':
     """Errata:
 
     - Solids marked ??? may have too steep dihedral angles
-      (different nodges are required)
+      (different notches are required)
     - this script invokes inkscape to do a boolean path intersection operation
       this seems to fail for the tC solid (Europe's missing.)
 
@@ -225,7 +225,7 @@ if __name__ == '__main__':
     parser.add_argument("--map", help="map engraving", choices=map_choices, default='earth')
     parser.add_argument("--radius", help="polyhedron's radius (mm) (default: 100)", type=float, default=100.)
     parser.add_argument("--thickness", help="material thickness (mm) (default: 3.)", type=float, default=3.)
-    parser.add_argument("--overhang", help="overhang of nodges (mm) (default: .3)", type=float, default=.3)
+    parser.add_argument("--overhang", help="overhang of notches (mm) (default: .3)", type=float, default=.3)
     parser.add_argument("--overcut", help="overcut in corners to account for cutting width (mm) (default: 0)", type=float, default=0.)
     parser.add_argument("--padding", help="padding between faces (mm) (default: 3.)", type=float, default=3.)
     parser.add_argument("--sheetwidth", help="maximum sheet width (mm) (default: 550)", type=float, default=550.)
@@ -247,13 +247,13 @@ if __name__ == '__main__':
 
     scale = args.dpi/25.4
 
-    for name, _, faces_func, nodges in projections:
+    for name, _, faces_func, notches in projections:
         if name == args.type:
             break
 
     faces = faces_func()
 
-    render_polyhedron_map(args.filename, faces, nodges,
+    render_polyhedron_map(args.filename, faces, notches,
                           radius=args.radius*scale,
                           thickness=args.thickness*scale,
                           overhang=args.overhang*scale,
