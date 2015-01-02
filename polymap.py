@@ -32,18 +32,13 @@ def get_bounding_box(path):
 
 def get_projection_paths(faces, globe, notches, radius, thickness, overhang, overcut, cutwidth, flip):
 
-    if flip:
-        xflip = -1.
-    else:
-        xflip = 1.
-
     paths = []
     for i, face in enumerate(faces):
         print "face (%d/%d)" % (i,len(faces))
         eye = face['pos']
         north = face['points'][0]
 
-        edges = [ (xflip*x*radius,-y*radius) for x,y,z in
+        edges = [ (x*radius,-y*radius) for x,y,z in
                 projection.look_at(face['points'], eye=eye, north=north) ]
 
         shape = pathedit.grow(pathedit.subdivide(edges, notches, face['angles'],
@@ -51,6 +46,12 @@ def get_projection_paths(faces, globe, notches, radius, thickness, overhang, ove
                                                  overhang=overhang,
                                                  overcut=overcut),
                               cutwidth/2.)
+
+        if flip:
+           xflip = -1
+           shape = [ (-x, y) for (x, y) in shape ]
+        else:
+           xflip = 1
 
         bbox = get_bounding_box(shape)
 
