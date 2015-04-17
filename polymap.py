@@ -10,11 +10,11 @@ import globe, svg, pathedit, projection, linear, polymath, maps
 
 engrave = 'stroke:none;fill:#000000'
 clip = 'stroke:none;fill:#0000ff'
-cut = 'stroke:#ff0000;fill:none'
+cut = 'stroke:#ff0000;fill:none;stroke-width:.15'
 
 comment = 'stroke:none;fill:#0000ff'
-textstyle= 'font-size:50px;text-align:center;text-anchor:middle;'
-smalltextstyle= 'font-size:30px;text-align:center;text-anchor:middle;'
+textstyle= 'font-size:5;text-align:center;text-anchor:middle;'
+smalltextstyle= 'font-size:3;text-align:center;text-anchor:middle;'
 
 def get_bounding_box(path):
     """ returns (min_x, min_y, max_x, max_y) """
@@ -47,9 +47,12 @@ def get_projection_paths(faces, globe, notches, radius, thickness, overhang, ove
                                                  overcut=overcut),
                               cutwidth/2.)
 
+#        slots = [ pathedit.grow(s, cutwidth/2.) for s in pathedit.slots(edges, notches) ]
+
         if flip:
            xflip = -1
            shape = [ (-x, y) for (x, y) in shape ]
+#           slots = [ [ (-x, y) for (x, y) in s ] for s in slots ]
         else:
            xflip = 1
 
@@ -70,6 +73,7 @@ def get_projection_paths(faces, globe, notches, radius, thickness, overhang, ove
 
         paths.append( { 'bbox'      : bbox,
                         'borders'   : shape,
+#                        'slots'     : slots,
                         'projection': engraving,
                         'neighbours': face['neighbours'],
                         'points'    : edges } )
@@ -109,6 +113,7 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
         w = max(w, x)
 
     h = y + cur_h + padding
+    w, h = int(math.ceil(w)), int(math.ceil(h))
 
     f.write(svg.header(w,h))
 
@@ -116,6 +121,7 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
 
         x, y = pos[i]
         borders_path = svg.polygon_path(face['borders'])
+#        borders_path = svg.polygon_path(face['borders']) + ''.join(svg.polygon_path(s) for s in face['slots'])
         projection_path = svg.polygon_multipath(face['projection'])
 
         borders = svg.path( borders_path, style=cut )
@@ -128,18 +134,18 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
             engraving = ''
 
         if use_numbers:
-            text = svg.text(0,25, str(i), style=comment+';'+textstyle )
+            text = svg.text(0,2.5, str(i), style=comment+';'+textstyle )
 
             for n, a, b in zip(face['neighbours'],
                                face['points'], face['points'][1:]+face['points'][:1]):
                 x1, y1 = a
                 x2, y2 = b
-                dx, dy = (x1+x2)/3., (y1+y2)/3.+15
+                dx, dy = (x1+x2)/3., (y1+y2)/3.+1.5
                 text += svg.text(dx,dy, str(n), style=comment+';'+smalltextstyle )
         else:
             text = ''
 
-        f.write(svg.group( svg.group(borders + engraving) + text, transform='translate('+str(x)+' '+str(y)+')', id='face_'+str(i) ))
+        f.write(svg.group( svg.group(borders + engraving) + text + svg.circle(.1, style=cut), transform='translate('+str(x)+' '+str(y)+')', id='face_'+str(i) ))
 
     f.write(svg.footer())
 
@@ -194,8 +200,8 @@ projections = (
     ('kD', "Pentakis dodecahedron", polymath.pentakis_dodecahedron_faces, "LLL"),
     ('jC', "Rhombic dodecahedron", polymath.rhombic_dodecahedron_faces, "LLLL"),
     ('jD', "Rhombic triacontahedron", polymath.rhombic_triacontahedron_faces, "LLLL"),
-    ('oC', "Deltoidal icositetrahedron", polymath.deltoidal_icositetrahedron_faces, "SLLS"),
-    ('oD', "Deltoidal hexecontahedron", polymath.deltoidal_hexecontahedron_faces, "SLLS"),
+    ('oC', "Deltoidal icositetrahedron", polymath.deltoidal_icositetrahedron_faces, "SLls"),
+    ('oD', "Deltoidal hexecontahedron", polymath.deltoidal_hexecontahedron_faces, "SLls"),
     ('gC', "Pentagonal icositetrahedron", polymath.pentagonal_icositetrahedron_faces, "SSSLL"),
     ('gD', "Pentagonal hexecontahedron", polymath.pentagonal_hexecontahedron_faces, "SSSLL"),
 
@@ -232,7 +238,6 @@ if __name__ == '__main__':
     parser.add_argument("--sheetwidth", help="maximum sheet width (mm) (default: 550)", type=float, default=550.)
     parser.add_argument("--cutwidth", help="cutting width of laser(mm) (default: .15)", type=float, default=.15)
     parser.add_argument("--flip", help="engrave on the backside", action="store_true")
-    parser.add_argument("--dpi", help="dpi used for svg, (default: 90, as used by inkscape)", type=float, default=90)
     parser.add_argument("--invert", help="engrave seas instead of landmass", action="store_true")
     parser.add_argument("--nonumbers", help="do not plot number hints", action="store_true")
     parser.add_argument("--noengraving", help="do not plot world map", action="store_true")
@@ -246,8 +251,6 @@ if __name__ == '__main__':
     # convert to inkscape sizes
     #
 
-    scale = args.dpi/25.4
-
     for name, _, faces_func, notches in projections:
         if name == args.type:
             break
@@ -255,13 +258,13 @@ if __name__ == '__main__':
     faces = faces_func()
 
     render_polyhedron_map(args.filename, faces, notches,
-                          radius=args.radius*scale,
-                          thickness=args.thickness*scale,
-                          overhang=args.overhang*scale,
-                          overcut=args.overcut*scale,
-                          cutwidth=args.cutwidth*scale,
-                          padding=args.padding*scale,
-                          sheetwidth=args.sheetwidth*scale,
+                          radius=args.radius,
+                          thickness=args.thickness,
+                          overhang=args.overhang,
+                          overcut=args.overcut,
+                          cutwidth=args.cutwidth,
+                          padding=args.padding,
+                          sheetwidth=args.sheetwidth,
                           flip=args.flip,
                           invert=args.invert,
                           use_numbers=not args.nonumbers,

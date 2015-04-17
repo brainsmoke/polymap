@@ -4,7 +4,7 @@ usage: polymap.py [-h]
                   [--thickness THICKNESS] [--overhang OVERHANG]
                   [--overcut OVERCUT] [--padding PADDING]
                   [--sheetwidth SHEETWIDTH] [--cutwidth CUTWIDTH] [--flip]
-                  [--dpi DPI] [--invert] [--nonumbers] [--noengraving]
+                  [--invert] [--nonumbers] [--noengraving]
                   filename
 
 positional arguments:
@@ -26,7 +26,6 @@ optional arguments:
                         maximum sheet width (mm) (default: 550)
   --cutwidth CUTWIDTH   cutting width of laser(mm) (default: .15)
   --flip                engrave on the backside
-  --dpi DPI             dpi used for svg, (default: 90, as used by inkscape)
   --invert              engrave seas instead of landmass
   --nonumbers           do not plot number hints
   --noengraving         do not plot world map

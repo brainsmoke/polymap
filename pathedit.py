@@ -109,6 +109,25 @@ def jagged_shortedge(a, b, angle, thickness, overhang, overcut):
 def identity(a, b, angle, thickness, overhang, overcut):
     return (a,)
 
+def slot(a, b, d, w, h, start = None, middle = None, end = None):
+
+    dx, dy = normalize2(vector_sub2(b, a))
+    wdx, wdy = dx*w, dy*w
+    hdx, hdy = dy*h, -dx*h
+
+    s = None, None
+
+    if start != None:
+        s = interpolate2(a, b, start)
+    elif middle != None:
+        s = vector_sub2( interpolate2(a, b, middle), (wdx/2., wdy/2.) )
+    elif end != None:
+        s = vector_sub2( interpolate2(a, b, end), (wdx, wdy) )
+
+    sx, sy = vector_add2(s, (dy*d, -dx*d) )
+
+    return [ (sx, sy), (sx+wdx, sy+wdy), (sx+wdx+hdx, sy+wdy+hdy), (sx+hdx, sy+hdy) ]
+
 def slot_long(a, b, unit):
 
     return replace_line(a, b, tuple( (x/10., y) for x,y in (
@@ -161,6 +180,8 @@ def purge_doubles(path):
     return elems
         
 shape_map = {
+    's' : jagged_shortedge,
+    'l' : jagged_longedge,
     'S' : jagged_shortedge,
     'L' : jagged_longedge,
     'I' : identity,
@@ -173,14 +194,33 @@ def subdivide(shape, types, angles, thickness, overhang, overcut, shape_map=shap
     return purge_doubles( [ c for e in edges for c in e ] )
 
 slot_map = {
-    'S': slot_short,
-    'L': slot_long,
+    'S': [
+        (3, 3.5, 1.5, None, .5, None),
+
+        (0, 7, 7, None, .5, None),
+    ],
+    'L': [
+		(.1, 5, 5, 0., None, None),
+        (0, 7, 7, None, .5, None),
+        (3, 3.5, 1.5, None, .5, None),
+    ],
+    's': [
+        (3, 3.5, 1.5, None, .5, None),
+        (0, 7, 7, None, .5, None),
+    ],
+    'l': [
+		(.1, 5, 5, None, None, 1.),
+        (0, 7, 7, None, .5, None),
+        (3, 3.5, 1.5, None, .5, None),
+    ],
 }
 
-def slots(shape, types, native_scale, slot_map=slot_map):
+
+def slots(shape, types, slot_map=slot_map):
     edges = []
     for t, a, b in zip(types, shape, shape[1:]+shape[:1]):
-        edges.append( purge_doubles( slot_map[t](a, b, native_scale) ) )
+        for d, w, h, start, middle, end in slot_map[t]:
+            edges.append( slot( a, b, d, w, h, start, middle, end ) )
 
     return tuple( edges )
 

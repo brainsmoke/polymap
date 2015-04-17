@@ -5,8 +5,9 @@ def header(width, height):
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:xlink="http://www.w3.org/1999/xlink"
-   width="""+"\""+str(width)+"\""+"""
-   height="""+"\""+str(height)+"\""+"""
+   width="""+"\""+str(width)+"mm\""+"""
+   height="""+"\""+str(height)+"mm\""+"""
+   viewBox=\"0 0 """+str(width)+' '+str(height)+"""\"
    id="dhxdron"
    >"""
 
