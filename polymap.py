@@ -12,7 +12,7 @@ engrave = 'stroke:none;fill:#000000'
 clip = 'stroke:none;fill:#0000ff'
 cut = 'stroke:#ff0000;fill:none;stroke-width:.15'
 
-comment = 'stroke:none;fill:#0000ff'
+commentstyle = 'stroke:none;fill:#0000ff'
 textstyle= 'font-size:5;text-align:center;text-anchor:middle;'
 smalltextstyle= 'font-size:3;text-align:center;text-anchor:middle;'
 
@@ -95,7 +95,7 @@ def inkscape_batch_intersection(filename, face_count, invert):
     argv += [ '--verb', 'FileSave', '--verb', 'FileQuit' ]
     os.spawnvp(os.P_WAIT, 'inkscape', argv)
 
-def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, use_map):
+def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, use_map, center_dot, comment):
 
     x, y = padding, padding
     w, cur_h = 0., 0.
@@ -116,6 +116,7 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
     w, h = int(math.ceil(w)), int(math.ceil(h))
 
     f.write(svg.header(w,h))
+    f.write('<title><![CDATA['+comment+']]></title>')
 
     for i, face in enumerate(facepaths):
 
@@ -134,23 +135,28 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
             engraving = ''
 
         if use_numbers:
-            text = svg.text(0,2.5, str(i), style=comment+';'+textstyle )
+            text = svg.text(0,2.5, str(i), style=commentstyle+';'+textstyle )
 
             for n, a, b in zip(face['neighbours'],
                                face['points'], face['points'][1:]+face['points'][:1]):
                 x1, y1 = a
                 x2, y2 = b
                 dx, dy = (x1+x2)/3., (y1+y2)/3.+1.5
-                text += svg.text(dx,dy, str(n), style=comment+';'+smalltextstyle )
+                text += svg.text(dx,dy, str(n), style=commentstyle+';'+smalltextstyle )
         else:
             text = ''
 
-        f.write(svg.group( svg.group(borders + engraving) + text + svg.circle(.1, style=cut), transform='translate('+str(x)+' '+str(y)+')', id='face_'+str(i) ))
+        if center_dot:
+            dot = svg.circle(.1, style=cut)
+        else:
+            dot = ''
+
+        f.write(svg.group( svg.group(borders + engraving) + text + dot, transform='translate('+str(x)+' '+str(y)+')', id='face_'+str(i) ))
 
     f.write(svg.footer())
 
 def render_polyhedron_map(filename, faces, notches,
-                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert, use_numbers, map_type):
+                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert, use_numbers, center_dot, map_type, comment):
 
     if map_type != None:
         g = globe.get_map(maps.map_file(map_type))
@@ -165,7 +171,7 @@ def render_polyhedron_map(filename, faces, notches,
                                      cutwidth=cutwidth,
                                      flip=flip)
     f = open(filename, "w")
-    write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, map_type != None)
+    write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, map_type != None, center_dot, comment)
     f.close()
 
     if map_type != None:
@@ -241,11 +247,30 @@ if __name__ == '__main__':
     parser.add_argument("--invert", help="engrave seas instead of landmass", action="store_true")
     parser.add_argument("--nonumbers", help="do not plot number hints", action="store_true")
     parser.add_argument("--noengraving", help="do not plot world map", action="store_true")
+    parser.add_argument("--centerdot", help="plot a center dot", action="store_true")
 
     args = parser.parse_args()
 
     if args.noengraving:
         args.map = None
+
+    comment = '--type %s --map %s --radius %f --thickness %f --overhang %f --overcut %f --padding %f --sheetwidth %f --cutwidth %f' % \
+              (args.type, args.map, args.radius, args.thickness, args.overhang, args.overcut, args.padding, args.sheetwidth, args.cutwidth)
+
+    if args.flip:
+        comment += ' --flip'
+
+    if args.invert:
+        comment += ' --invert'
+
+    if args.nonumbers:
+        comment += ' --nonumbers'
+
+    if args.noengraving:
+        comment += ' --noengraving'
+
+    if args.centerdot:
+        comment += ' --centerdot'
 
     #
     # convert to inkscape sizes
@@ -257,6 +282,8 @@ if __name__ == '__main__':
 
     faces = faces_func()
 
+    print parser
+    print args
     render_polyhedron_map(args.filename, faces, notches,
                           radius=args.radius,
                           thickness=args.thickness,
@@ -268,4 +295,6 @@ if __name__ == '__main__':
                           flip=args.flip,
                           invert=args.invert,
                           use_numbers=not args.nonumbers,
-                          map_type=args.map)
+                          center_dot=args.centerdot,
+                          map_type=args.map,
+                          comment=comment)

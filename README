@@ -4,7 +4,7 @@ usage: polymap.py [-h]
                   [--thickness THICKNESS] [--overhang OVERHANG]
                   [--overcut OVERCUT] [--padding PADDING]
                   [--sheetwidth SHEETWIDTH] [--cutwidth CUTWIDTH] [--flip]
-                  [--invert] [--nonumbers] [--noengraving]
+                  [--invert] [--nonumbers] [--noengraving] [--centerdot]
                   filename
 
 positional arguments:
@@ -29,6 +29,7 @@ optional arguments:
   --invert              engrave seas instead of landmass
   --nonumbers           do not plot number hints
   --noengraving         do not plot world map
+  --centerdot           plot a center dot
 
 Supported solids: 
 
