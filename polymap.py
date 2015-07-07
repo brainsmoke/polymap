@@ -254,8 +254,11 @@ if __name__ == '__main__':
     if args.noengraving:
         args.map = None
 
-    comment = '--type %s --map %s --radius %f --thickness %f --overhang %f --overcut %f --padding %f --sheetwidth %f --cutwidth %f' % \
-              (args.type, args.map, args.radius, args.thickness, args.overhang, args.overcut, args.padding, args.sheetwidth, args.cutwidth)
+    comment = '--type %s --radius %f --thickness %f --overhang %f --overcut %f --padding %f --sheetwidth %f --cutwidth %f' % \
+              (args.type, args.radius, args.thickness, args.overhang, args.overcut, args.padding, args.sheetwidth, args.cutwidth)
+
+    if args.map != None:
+        comment += ' --map %s' % (args.map,)
 
     if args.flip:
         comment += ' --flip'
@@ -282,8 +285,6 @@ if __name__ == '__main__':
 
     faces = faces_func()
 
-    print parser
-    print args
     render_polyhedron_map(args.filename, faces, notches,
                           radius=args.radius,
                           thickness=args.thickness,
