@@ -1,5 +1,6 @@
 
 from math import *
+from functools import reduce
 
 def d(a, b):
     return sqrt(sum(map(lambda i,j: (i-j)*(i-j), a, b)))
