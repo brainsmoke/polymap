@@ -146,20 +146,27 @@ def slot_short(a, b, unit):
         (3.7,  -3  *unit),
     ) ) )
 
-def normalize2( (x, y) ):
+def normalize2(x, y):
     d = sqrt(x*x+y*y)
     return (x/d, y/d)
 
-def vector_sub2( (x1,y1), (x2,y2) ):
+def vector_sub2(v1, v2):
+    x1, y1 = v1[0], v1[1]
+    x2, y2 = v2[0], v2[1]
     return (x1-x2, y1-y2)
 
-def vector_add2( (x1,y1), (x2,y2) ):
+def vector_add2(v1, v2):
+    x1, y1 = v1[0], v1[1]
+    x2, y2 = v2[0], v2[1]
     return (x1+x2, y1+y2)
 
-def scalar_mul2( m, (x,y) ):
+def scalar_mul2(m, v):
+    x, y = v[0], v[1]
     return (x*m, y*m)
 
-def interpolate2( (x1,y1), (x2,y2), frac ):
+def interpolate2(v1, v2, frac ):
+    x1, y1 = v1[0], v1[1]
+    x2, y2 = v2[0], v2[1]
     return ( x2*frac+x1*(1-frac), y2*frac+y1*(1-frac) )
 
 def replace_line(a, b, jag):
@@ -264,7 +271,11 @@ TOP, LEFT, BOTTOM, RIGHT, INSIDE = 0, 1, 2, 3, 4
 
 pmap = [ 1, 2, 4, 8 ]
 
-def bbox_phase( (start, phase), (x, y), (min_x, min_y, max_x, max_y) ):
+def bbox_phase(p, exit_pos, bbox):
+    start, phase = p[0], p[1]
+    x, y = exit_pos[0], exit_pos[1]
+    min_x, min_y, max_x, max_y = bbox[0], bbox[1], bbox[2], bbox[3]
+
     if start == INSIDE:
         if y > max_y:
             return TOP, 0
@@ -306,7 +317,9 @@ def bbox_phase( (start, phase), (x, y), (min_x, min_y, max_x, max_y) ):
 
     raise Error("Meh!")
 
-def add_bbox_corners( (start, phase), (min_x, min_y, max_x, max_y), newpath ):
+def add_bbox_corners(phase, bbox, newpath):
+    start, phase = start_phase[0], start_phase[1]
+    min_x, min_y, max_x, max_y = bbox[0], bbox[1], bbox[2], bbox[3]
 
     corners = ( (min_x, max_y), (min_x, min_y), (max_x, min_y), (max_x, max_y) )
 

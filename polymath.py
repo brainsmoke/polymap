@@ -143,13 +143,13 @@ def archimedean_faces(plist):
 # permutations
 #
 
-def even_perms( (x, y, z) ):
+def even_perms(x, y, z):
     return [ (x, y, z), (z, x, y), (y, z, x) ]
 
-def all_perms( (x, y, z) ):
+def all_perms(x, y, z):
     return even_perms( (x, y, z) ) + even_perms( (y, x, z) )
 
-def sign_perms( (x, y, z) ):
+def sign_perms(x, y, z):
     xset = yset = zset = (-1., 1.)
     if x == 0: xset = (1,)
     if y == 0: yset = (1,)

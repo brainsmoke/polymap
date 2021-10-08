@@ -105,7 +105,9 @@ def look_at(path, eye, center=(0,0,0), north=(0,1,0)):
     M = ( s, u, f_neg )
     return [ matrix_mul(M, vector_sub(v, eye)) for v in path ]
 
-def border_node( (x1,y1,z1), (x2,y2,z2), z_border):
+def border_node(coord1, coord2, z_border):
+    x1, y1, z1 = coord1[0], coord1[1], coord1[2]
+    x2, y2, z2 = coord2[0], coord2[1], coord2[2]
 
     if -0.00001 < z1-z2 < 0.00001:
         frac = .5
@@ -117,7 +119,8 @@ def border_node( (x1,y1,z1), (x2,y2,z2), z_border):
 
     return (x/z, y/z, True)
 
-def internal_node( (x,y,z), factor):
+def internal_node(v, factor):
+    x,y,z = v[0], v[1], v[2]
     return (x*factor/-z, y*factor/-z, False)
 
 def cone_project(globe, eye, center=(0,0,0), north=(0,1,0), front=True):
