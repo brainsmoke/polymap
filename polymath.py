@@ -6,7 +6,7 @@ def canonical_rotation( v ):
     """ returns (canonical_first_elem, rotated_vector) """
     best = tuple( v )
     best_ix = 0
-    for i in xrange(1, len(v)):
+    for i in range(1, len(v)):
         cur = tuple( v[i:]+v[:i] )
         if (cur < best):
             best = cur
@@ -64,13 +64,13 @@ def ccw_neighbours(plist, ix):
     return tuple(onlist)
 
 def dihedral_angle(f1_pos, f2_pos):
-    a, b, c = magnitude(f1_pos), magnitude(f2_pos), d(f1_pos, f2_pos)
+    a, b, c = magnitude(*f1_pos), magnitude(*f2_pos), d(f1_pos, f2_pos)
     return acos( (a*a + b*b - c*c) / (2*a*b) )
 
 def vertex_info(plist, ix):
     neighbours = ccw_neighbours(plist, ix)
     faces = tuple( find_regular_polygon(plist, neighbours[j], ix, neighbours[j-1])
-                   for j in xrange(len(neighbours)) )
+                   for j in range(len(neighbours)) )
     # order faces / neighbours (counter clockwise) smallest face first
     first, _ = canonical_rotation( tuple( len(x) for x in faces ) )
 
@@ -99,14 +99,14 @@ def catalan_face(plist, ix):
     }
 
 def dual_faces(plist):
-    return tuple( catalan_face(plist, i) for i in xrange(len(plist)) )
+    return tuple( catalan_face(plist, i) for i in range(len(plist)) )
 
 def archimedean_faces(plist):
     face_list = []
     face_points = []
     facemap = {}
 
-    info = tuple( vertex_info(plist, i) for i in xrange(len(plist)) )
+    info = tuple( vertex_info(plist, i) for i in range(len(plist)) )
 
     for _, faces in info:
         for points in faces:
@@ -143,13 +143,13 @@ def archimedean_faces(plist):
 # permutations
 #
 
-def even_perms( (x, y, z) ):
+def even_perms(x, y, z):
     return [ (x, y, z), (z, x, y), (y, z, x) ]
 
-def all_perms( (x, y, z) ):
-    return even_perms( (x, y, z) ) + even_perms( (y, x, z) )
+def all_perms(x, y, z):
+    return even_perms(x, y, z) + even_perms(y, x, z)
 
-def sign_perms( (x, y, z) ):
+def sign_perms(x, y, z):
     xset = yset = zset = (-1., 1.)
     if x == 0: xset = (1,)
     if y == 0: yset = (1,)
@@ -157,10 +157,10 @@ def sign_perms( (x, y, z) ):
     return [ (x*sx, y*sy, z*sz) for sx in xset for sy in yset for sz in zset ]
 
 def even_perms_sign( p ):
-    return [ ep for sp in sign_perms(p) for ep in even_perms(sp) ]
+    return [ ep for sp in sign_perms(*p) for ep in even_perms(*sp) ]
 
 def all_perms_sign( p ):
-    return [ ap for sp in sign_perms(p) for ap in all_perms(sp) ]
+    return [ ap for sp in sign_perms(*p) for ap in all_perms(*sp) ]
 
 #
 # consts

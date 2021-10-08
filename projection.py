@@ -3,7 +3,7 @@ from math import *
 from linear import *
 
 def matrix_mul(M, v):
-    return tuple([ scalar_product(M[row], v) for row in xrange(len(M)) ])
+    return tuple([ scalar_product(M[row], v) for row in range(len(M)) ])
 
 def look_at(path, eye, center=(0,0,0), north=(0,1,0)):
     f     = normalize(vector_sub(center, eye))
