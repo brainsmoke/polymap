@@ -6,7 +6,7 @@ def canonical_rotation( v ):
     """ returns (canonical_first_elem, rotated_vector) """
     best = tuple( v )
     best_ix = 0
-    for i in xrange(1, len(v)):
+    for i in range(1, len(v)):
         cur = tuple( v[i:]+v[:i] )
         if (cur < best):
             best = cur
@@ -70,7 +70,7 @@ def dihedral_angle(f1_pos, f2_pos):
 def vertex_info(plist, ix):
     neighbours = ccw_neighbours(plist, ix)
     faces = tuple( find_regular_polygon(plist, neighbours[j], ix, neighbours[j-1])
-                   for j in xrange(len(neighbours)) )
+                   for j in range(len(neighbours)) )
     # order faces / neighbours (counter clockwise) smallest face first
     first, _ = canonical_rotation( tuple( len(x) for x in faces ) )
 
@@ -99,14 +99,14 @@ def catalan_face(plist, ix):
     }
 
 def dual_faces(plist):
-    return tuple( catalan_face(plist, i) for i in xrange(len(plist)) )
+    return tuple( catalan_face(plist, i) for i in range(len(plist)) )
 
 def archimedean_faces(plist):
     face_list = []
     face_points = []
     facemap = {}
 
-    info = tuple( vertex_info(plist, i) for i in xrange(len(plist)) )
+    info = tuple( vertex_info(plist, i) for i in range(len(plist)) )
 
     for _, faces in info:
         for points in faces:

@@ -34,7 +34,7 @@ def get_projection_paths(faces, globe, notches, radius, thickness, overhang, ove
 
     paths = []
     for i, face in enumerate(faces):
-        print "face (%d/%d)" % (i,len(faces))
+        print("face (%d/%d)" % (i,len(faces)))
         eye = face['pos']
         north = face['points'][0]
 
@@ -89,7 +89,7 @@ def inkscape_batch_intersection(filename, face_count, invert):
     else:
         action = 'SelectionIntersect'
 
-    for i in xrange(face_count):
+    for i in range(face_count):
         argv += [ '--select=engrave_'+str(i), '--verb', 'SelectionUnGroup', '--verb', action, '--verb', 'EditDeselect' ]
 
     argv += [ '--verb', 'FileSave', '--verb', 'FileQuit' ]

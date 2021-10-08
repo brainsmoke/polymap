@@ -1,5 +1,5 @@
 
-import math 
+import math
 
 def squared_distance(a, b):
     ax, ay, az = a
@@ -17,7 +17,7 @@ def ll_to_globe_coord(coord):
 
 def globe_to_ll_coord(coord):
     x, y, z = coord
-    a, b = safe_acos(z/sqrt(1.-y*y)), asin(y) 
+    a, b = safe_acos(z/sqrt(1.-y*y)), asin(y)
     if x < 0:
         a = -a
     return (a, b)
@@ -33,13 +33,13 @@ def join_adjacent(r, dist, max_join=20):
     r = r[:]
     diffs = []
 
-    path = [ i/2                 for i in xrange(len(r)*2) ]
-    side = [ -(i%2)              for i in xrange(len(r)*2) ]
-    end  = [ i+1-2*(i%2)         for i in xrange(len(r)*2) ]
-    loc  = [ r[path[i]][side[i]] for i in xrange(len(r)*2) ]
+    path = [ i/2                 for i in range(len(r)*2) ]
+    side = [ -(i%2)              for i in range(len(r)*2) ]
+    end  = [ i+1-2*(i%2)         for i in range(len(r)*2) ]
+    loc  = [ r[path[i]][side[i]] for i in range(len(r)*2) ]
 
-    for a in xrange(len(path)):
-        for b in xrange(a+1, len(path)):
+    for a in range(len(path)):
+        for b in range(a+1, len(path)):
             diff = dist(loc[a], loc[b])
             if diff <= max_join:
                 diffs.append( ( diff, a, b ) )
@@ -137,7 +137,7 @@ def cone_project(globe, eye, center=(0,0,0), north=(0,1,0), front=True):
         last = None
         new_path = []
 
-        for i in xrange(len(path)):
+        for i in range(len(path)):
             if (d_cone+path[i][2] < 0) == front:
                 path = path[i:]+path[:i]+[path[i]]
                 visible = False
@@ -147,7 +147,7 @@ def cone_project(globe, eye, center=(0,0,0), north=(0,1,0), front=True):
             if (d_cone+v[2] >= 0) == front:
                 if not visible:
                     new_path.append(border_node(last, v, -d_cone))
-            
+
                 new_path.append(internal_node(v, factor))
                 visible = True
             else:

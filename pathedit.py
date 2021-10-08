@@ -178,7 +178,7 @@ def purge_doubles(path):
         if a != b:
             elems.append(b)
     return elems
-        
+
 shape_map = {
     's' : jagged_shortedge,
     'l' : jagged_longedge,
@@ -298,7 +298,7 @@ def bbox_phase( (start, phase), (x, y), (min_x, min_y, max_x, max_y) ):
         return (start, phase+1)
 
     if pset & pmap[cur-2]:
-        print "EEK"
+        print("EEK")
         if phase > 0:
             return (start, phase-2)
         else:
@@ -328,7 +328,7 @@ def sloppy_bbox_clip(path, bbox):
     if len(path) < 2:
         return []
 
-    for i in xrange(len(path)):
+    for i in range(len(path)):
         if inside(path[i], bbox):
             path = path[i+1:]+path[:i+1]
             break
@@ -360,8 +360,8 @@ def sloppy_bbox_clip(path, bbox):
         phase = bbox_phase(phase, exit_pos, bbox)
 
     if abs(phase[1]) > 2:
-        print "ulikely bbox condition met, untested"
-        print phase
+        print("ulikely bbox condition met, untested")
+        print(phase)
         min_x, min_y, max_x, max_y = bbox
         return [(min_x, max_y), (min_x, min_y), (max_x, min_y), (max_x, max_y)]
 
