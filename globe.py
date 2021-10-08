@@ -7,7 +7,7 @@ def squared_distance(a, b):
     return (ax-bx)*(ax-bx) + (ay-by)*(ay-by) + (az-bz)*(az-bz)
 
 def safe_acos(a):
-    return acos(min(1.0, max(-1.0, a)))
+    return math.acos(min(1.0, max(-1.0, a)))
 
 def ll_to_globe_coord(coord):
     a, b = coord
@@ -17,7 +17,7 @@ def ll_to_globe_coord(coord):
 
 def globe_to_ll_coord(coord):
     x, y, z = coord
-    a, b = safe_acos(z/sqrt(1.-y*y)), asin(y)
+    a, b = safe_acos(z / math.sqrt(1.-y*y)), math.asin(y)
     if x < 0:
         a = -a
     return (a, b)
@@ -74,7 +74,7 @@ def get_regions(filename):
     regions = []
     r = []
 
-    for line in file(filename).readlines():
+    for line in open(filename).readlines():
         if line[0] == '#':
             r = []
             regions.append(r)
@@ -88,7 +88,7 @@ def get_globe():
 
 def get_map(filename):
     regions = []
-    for r in file(filename).readlines():
+    for r in open(filename).readlines():
         regions.append(tuple(tuple(float(x) for x in p.split(',')) for p in r.split('|')))
 
     return tuple(regions)
