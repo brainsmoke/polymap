@@ -64,7 +64,7 @@ def ccw_neighbours(plist, ix):
     return tuple(onlist)
 
 def dihedral_angle(f1_pos, f2_pos):
-    a, b, c = magnitude(f1_pos), magnitude(f2_pos), d(f1_pos, f2_pos)
+    a, b, c = magnitude(*f1_pos), magnitude(*f2_pos), d(f1_pos, f2_pos)
     return acos( (a*a + b*b - c*c) / (2*a*b) )
 
 def vertex_info(plist, ix):
@@ -147,7 +147,7 @@ def even_perms(x, y, z):
     return [ (x, y, z), (z, x, y), (y, z, x) ]
 
 def all_perms(x, y, z):
-    return even_perms( (x, y, z) ) + even_perms( (y, x, z) )
+    return even_perms(x, y, z) + even_perms(y, x, z)
 
 def sign_perms(x, y, z):
     xset = yset = zset = (-1., 1.)
@@ -157,10 +157,10 @@ def sign_perms(x, y, z):
     return [ (x*sx, y*sy, z*sz) for sx in xset for sy in yset for sz in zset ]
 
 def even_perms_sign( p ):
-    return [ ep for sp in sign_perms(p) for ep in even_perms(sp) ]
+    return [ ep for sp in sign_perms(*p) for ep in even_perms(*sp) ]
 
 def all_perms_sign( p ):
-    return [ ap for sp in sign_perms(p) for ap in all_perms(sp) ]
+    return [ ap for sp in sign_perms(*p) for ap in all_perms(*sp) ]
 
 #
 # consts

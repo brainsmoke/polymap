@@ -173,7 +173,7 @@ def replace_line(a, b, jag):
     edges = []
 
     x, y = a
-    dx, dy = normalize2(vector_sub2(b, a))
+    dx, dy = normalize2(*vector_sub2(b, a))
     for l, v in jag:
         edges.append( vector_add2(interpolate2(a, b, l), (-dy*v, dx*v) ) )
 
@@ -257,8 +257,8 @@ def grow(poly, width):
         ax, ay = a
         bx, by = b
         cx, cy = c
-        dx_ab, dy_ab = normalize2( (by-ay, -(bx-ax)) )
-        dx_bc, dy_bc = normalize2( (cy-by, -(cx-bx)) )
+        dx_ab, dy_ab = normalize2(by-ay, -(bx-ax))
+        dx_bc, dy_bc = normalize2(cy-by, -(cx-bx))
 
         mid_x, mid_y = (dx_ab+dx_bc)/2., (dy_ab+dy_bc)/2.
         invdist2 = mid_x*mid_x + mid_y*mid_y
@@ -317,7 +317,7 @@ def bbox_phase(p, exit_pos, bbox):
 
     raise Error("Meh!")
 
-def add_bbox_corners(phase, bbox, newpath):
+def add_bbox_corners(start_phase, bbox, newpath):
     start, phase = start_phase[0], start_phase[1]
     min_x, min_y, max_x, max_y = bbox[0], bbox[1], bbox[2], bbox[3]
 
