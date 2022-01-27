@@ -1,5 +1,7 @@
 
 import math
+from linear import normalize, vector_sub, cross_product, d
+from projection import matrix_mul
 
 def squared_distance(a, b):
     ax, ay, az = a
@@ -115,7 +117,7 @@ def border_node(coord1, coord2, z_border):
         frac = (z1-z_border)/(z1-z2)
 
     x, y = (x2*frac+x1*(1-frac)), (y2*frac+y1*(1-frac))
-    z = sqrt(x*x+y*y)
+    z = math.sqrt(x*x+y*y)
 
     return (x/z, y/z, True)
 
@@ -129,9 +131,9 @@ def cone_project(globe, eye, center=(0,0,0), north=(0,1,0), front=True):
     eye    = tuple(map(float, eye))
 
     paths = [ look_at(path, eye, center, north) for path in globe ]
-    d_center = sqrt(d(center, eye))
+    d_center = math.sqrt(d(center, eye))
     d_cone = d_center - 1./d_center
-    factor = sqrt(d_center*d_center - 1.)
+    factor = math.sqrt(d_center*d_center - 1.)
 
     r = []
     for path in paths:

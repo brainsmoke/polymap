@@ -1,12 +1,12 @@
 
-from math import *
+import math
 from functools import reduce
 
 def d(a, b):
-    return sqrt(sum(map(lambda i,j: (i-j)*(i-j), a, b)))
+    return math.sqrt(sum(map(lambda i,j: (i-j)*(i-j), a, b)))
 
 def magnitude(x, y, z):
-	return sqrt( x*x + y*y + z*z )
+	return math.sqrt( x*x + y*y + z*z )
 
 def scalar_product(v1, v2):
     x1, y1, z1 = v1[0], v1[1], v1[2]
@@ -34,7 +34,7 @@ def scalar_mul(s, v):
 
 def normalize(v):
     x,y,z = v[0], v[1], v[2]
-    d = sqrt(x*x+y*y+z*z)
+    d = math.sqrt(x*x+y*y+z*z)
     return (x/d, y/d, z/d)
 
 def interpolate(v1, v2, frac ):

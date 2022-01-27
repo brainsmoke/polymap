@@ -1,6 +1,5 @@
 
-from math import *
-from linear import *
+from linear import scalar_product, normalize, cross_product, vector_sub, d
 
 def matrix_mul(M, v):
     return tuple([ scalar_product(M[row], v) for row in range(len(M)) ])
@@ -27,7 +26,6 @@ def inverse_project(globe, eye, center=(0,0,0), north=(0,1,0), front=True):
     for path in paths:
 
         visible = False
-        last = None
         new_path = []
 
         for v in path:

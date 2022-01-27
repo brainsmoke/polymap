@@ -1,11 +1,10 @@
 
-from math import *
-from linear import *
+import math
 
 def jagged_longedge(a, b, angle, thickness, overhang, overcut):
 
-    indent = thickness/tan(angle)
-    extend = thickness/sin(angle) + overhang
+    indent = thickness / math.tan(angle)
+    extend = thickness / math.sin(angle) + overhang
 
     if overcut == 0:
         return replace_line(a, b, tuple( (x/10., y) for x,y in (
@@ -56,8 +55,8 @@ def jagged_longedge(a, b, angle, thickness, overhang, overcut):
 
 def jagged_shortedge(a, b, angle, thickness, overhang, overcut):
 
-    indent = thickness/tan(angle)
-    extend = thickness/sin(angle) + overhang
+    indent = thickness / math.tan(angle)
+    extend = thickness / math.sin(angle) + overhang
 
     if overcut == 0:
         return replace_line(a, b, tuple( (x/7., y) for x,y in (
@@ -147,7 +146,7 @@ def slot_short(a, b, unit):
     ) ) )
 
 def normalize2(x, y):
-    d = sqrt(x*x+y*y)
+    d = math.sqrt(x*x+y*y)
     return (x/d, y/d)
 
 def vector_sub2(v1, v2):
@@ -315,7 +314,7 @@ def bbox_phase(p, exit_pos, bbox):
         else:
             return (start, phase+2)
 
-    raise Error("Meh!")
+    raise Exception("Meh!")
 
 def add_bbox_corners(start_phase, bbox, newpath):
     start, phase = start_phase[0], start_phase[1]
@@ -349,7 +348,7 @@ def sloppy_bbox_clip(path, bbox):
     newpath = []
     exit_pos = None
     phase = INSIDE, 0
-
+    # TODO: what is the initial value of last_pos?
     for pos in path:
         if inside(pos, bbox):
 
@@ -379,4 +378,3 @@ def sloppy_bbox_clip(path, bbox):
         return [(min_x, max_y), (min_x, min_y), (max_x, min_y), (max_x, max_y)]
 
     return newpath
-

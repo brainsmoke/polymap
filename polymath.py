@@ -1,6 +1,7 @@
 
-from math import *
-from linear import *
+import math
+from linear import normalize, vector_sub, vector_sum, scalar_product, scalar_mul
+from linear import cross_product, d, magnitude
 
 def canonical_rotation( v ):
     """ returns (canonical_first_elem, rotated_vector) """
@@ -30,7 +31,7 @@ def find_next_point(plist, a, b, c):
         if d(prod, prod_new) < 0.001:
             return i
 
-    raise Error("meh")
+    raise Exception("meh")
 
 def find_regular_polygon(plist, last, first, second):
     a, b, c = last, first, second
@@ -50,7 +51,7 @@ def ccw_neighbours(plist, ix):
         v_in = normalize(vector_sub(p, plist[n_in]))
         min_scalar = None
         next_p = None
-        next_prod = None
+        # next_prod = None
         for n_out in nlist:
             if n_in != n_out:
                 v_out = normalize(vector_sub(plist[n_out], p))
@@ -59,13 +60,13 @@ def ccw_neighbours(plist, ix):
                 if scalar_product(p, prod) < 0 and (next_p == None or sprod < min_scalar):
                     min_scalar = sprod
                     next_p = n_out
-                    next_prod = prod
+                    # next_prod = prod
         onlist += [next_p]
     return tuple(onlist)
 
 def dihedral_angle(f1_pos, f2_pos):
     a, b, c = magnitude(*f1_pos), magnitude(*f2_pos), d(f1_pos, f2_pos)
-    return acos( (a*a + b*b - c*c) / (2*a*b) )
+    return math.acos( (a*a + b*b - c*c) / (2*a*b) )
 
 def vertex_info(plist, ix):
     neighbours = ccw_neighbours(plist, ix)
@@ -166,7 +167,7 @@ def all_perms_sign( p ):
 # consts
 #
 
-phi = ( sqrt(5.) + 1. ) / 2.
+phi = (  math.sqrt(5.) + 1. ) / 2.
 
 #
 # Platonic solids
@@ -175,8 +176,8 @@ phi = ( sqrt(5.) + 1. ) / 2.
 def tetrahedron_points():
     points = []
     for x in (-1., 1.):
-        points.append( (x, 0, -1./sqrt(2.)) )
-        points.append( (0, x,  1./sqrt(2.)) )
+        points.append( (x, 0, -1./ math.sqrt(2.)) )
+        points.append( (0, x,  1./ math.sqrt(2.)) )
     return points
 
 def cube_points():
@@ -215,15 +216,15 @@ def truncated_tetrahedron_points():
                       (-3.,-1., 1.) )
 
     for x, y, z in even_minusses:
-        points += even_perms( (x, y, z) )
+        points += even_perms(x, y, z)
 
     return points
 
 def truncated_cube_points():
-    return even_perms_sign( (sqrt(2.)-1., 1, 1) )
+    return even_perms_sign( ( math.sqrt(2.)-1., 1, 1) )
 
 def truncated_cuboctahedron_points():
-    return all_perms_sign( (1, 1.+sqrt(2.), 1.+2*sqrt(2.)) )
+    return all_perms_sign( (1, 1.+ math.sqrt(2.), 1.+2* math.sqrt(2.)) )
 
 def truncated_octahedron_points():
     return all_perms_sign( (0, 1, 2) )
@@ -253,7 +254,7 @@ def icosidodecahedron_points():
            even_perms_sign( (1/2., phi/2., (1.+phi)/2.) )
 
 def rhombicuboctahedron_points():
-    return even_perms_sign( (1, 1, 1+sqrt(2)) )
+    return even_perms_sign( (1, 1, 1+ math.sqrt(2)) )
 
 def rhombicosidodecahedron_points():
     return even_perms_sign( (1, 1, phi**3) ) + \
@@ -262,8 +263,8 @@ def rhombicosidodecahedron_points():
 
 def snub_cube_points():
     points = []
-    xi = ( ( 17.+3.*sqrt(33.) )**(1./3.) -
-           (-17.+3.*sqrt(33.) )**(1./3.) - 1.) / 3.
+    xi = ( ( 17.+3.* math.sqrt(33.) )**(1./3.) -
+           (-17.+3.* math.sqrt(33.) )**(1./3.) - 1.) / 3.
 
     even_plusses = ( (-1.,-1.,-1.), (-1., 1., 1.), ( 1.,-1., 1.), ( 1., 1.,-1) )
     coords = ( ( 1., xi, 1./xi),
@@ -271,17 +272,17 @@ def snub_cube_points():
 
     for sx, sy, sz in even_plusses:
         for x,y,z in coords:
-            points += even_perms( (x*sx, y*sy, z*sz) )
+            points += even_perms(x*sx, y*sy, z*sz)
 
     return points
 
 def snub_dodecahedron_points():
     points = []
 
-    phi = ( sqrt(5.) + 1. ) / 2.
+    phi = (  math.sqrt(5.) + 1. ) / 2.
     phi2 = phi**2
-    xi = (phi/2.+sqrt(phi-(5./27.))/2.)**(1./3.) + \
-        (phi/2.-sqrt(phi-(5./27.))/2.)**(1./3.)
+    xi = (phi/2.+ math.sqrt(phi-(5./27.))/2.)**(1./3.) + \
+        (phi/2.- math.sqrt(phi-(5./27.))/2.)**(1./3.)
     a = xi - 1/xi
     b = xi*phi + phi2 + phi/xi
 
@@ -296,7 +297,7 @@ def snub_dodecahedron_points():
 
     for sx, sy, sz in even_plusses:
         for x,y,z in coords:
-            points += even_perms( (x*sx, y*sy, z*sz) )
+            points += even_perms(x*sx, y*sy, z*sz)
 
     return points
 

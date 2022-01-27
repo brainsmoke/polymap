@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import math, sys, os
+import math, os
 
-import globe, svg, pathedit, projection, linear, polymath, maps
+import globe, svg, pathedit, projection, polymath, maps
 
 #
 # settings
