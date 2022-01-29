@@ -11,15 +11,19 @@ def header(width, height):
    id="dhxdron"
    >"""
 
+
 def background(width, height, style):
     return "<rect width=\""+str(width)+"\" height=\""+str(height)+"\"" + \
            " style=\""+style+"\" />"
 
+
 def circle(radius, style):
     return "  <circle r=\""+str(radius)+"\""+" style=\""+style+"\" />\n"
 
+
 def footer():
     return "</svg>"
+
 
 def group(code, transform=None, id=None):
     if id:
@@ -34,41 +38,45 @@ def group(code, transform=None, id=None):
 
     return "<g"+ident+trans+">"+code+"</g>\n"
 
+
 def path(path, style=None):
     s = ''
     if style:
         s = ' style="'+style+'"'
     return '<path d="'+path+'"'+s+'/>'
 
+
 def polygon_path(coords):
-    return 'M'+' L'.join( str(x)+' '+str(y) for x, y in coords )+' Z'
+    return 'M'+' L'.join(str(x) + ' ' + str(y) for x, y in coords) + ' Z'
+
 
 def polygon_multipath(paths):
     return '\n'.join(polygon_path(coords) for coords in paths)
+
 
 def text(x, y, text, id=None, transform=None, style=None):
     t = s = i = ''
 
     if id:
-        i = ' id="'+id+'"'
+        i = ' id="' + id + '"'
 
     if transform:
-        t = ' transform="'+transform+'"'
+        t = ' transform="' + transform + '"'
 
     if style:
-        s = ' style="'+style+'"'
+        s = ' style="' + style + '"'
 
-    return '<text x="'+str(x)+'" y="'+str(y)+'"'+i+t+s+'>'+text+'</text>'
+    return '<text x="' + str(x) + '" y="' + str(y) + '"' + i + t + s + '>' + \
+        text + '</text>'
 
 
 def use(id, transform=None, style=None):
     t = s = ''
 
     if transform:
-        t = ' transform="'+transform+'"'
+        t = ' transform="' + transform + '"'
 
     if style:
-        s = ' style="'+style+'"'
+        s = ' style="' + style + '"'
 
-    return '<use xlink:href="#'+id+'" '+t+s+'/>'
-
+    return '<use xlink:href="#' + id + '" ' + t + s + '/>'
