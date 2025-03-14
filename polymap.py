@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import math, sys, os
 
@@ -30,11 +30,11 @@ def get_bounding_box(path):
 
     return (min_x, min_y, max_x, max_y)
 
-def get_projection_paths(faces, globe, notches, radius, thickness, overhang, overcut, cutwidth, flip):
+def get_projection_paths(faces, globe, notches, radius, thickness, overhang, overcut, use_slots, cutwidth, flip):
 
     paths = []
     for i, face in enumerate(faces):
-        print "face (%d/%d)" % (i,len(faces))
+        print ("face ({:d}/{:d})".format(i,len(faces)))
         eye = face['pos']
         north = face['points'][0]
 
@@ -47,14 +47,16 @@ def get_projection_paths(faces, globe, notches, radius, thickness, overhang, ove
                                                  overcut=overcut),
                               cutwidth/2.)
 
-#        slots = [ pathedit.grow(s, cutwidth/2.) for s in pathedit.slots(edges, notches) ]
+        slots = []
+        if use_slots:
+            slots = [ pathedit.grow(s, cutwidth/2.) for s in pathedit.slots(edges, notches) ]
 
         if flip:
-           xflip = -1
-           shape = [ (-x, y) for (x, y) in shape ]
-#           slots = [ [ (-x, y) for (x, y) in s ] for s in slots ]
+            xflip = -1
+            shape = [ (-x, y) for (x, y) in shape ]
+            slots = [ [ (-x, y) for (x, y) in s ] for s in slots ]
         else:
-           xflip = 1
+            xflip = 1
 
         bbox = get_bounding_box(shape)
 
@@ -71,12 +73,12 @@ def get_projection_paths(faces, globe, notches, radius, thickness, overhang, ove
             min_x, min_y = bbox[:2]
             engraving = [ [ (min_x-1, min_y), (min_x-1, min_y-1), (min_x, min_y-1), (min_x, min_y) ] ]
 
-        paths.append( { 'bbox'      : bbox,
-                        'borders'   : shape,
-#                        'slots'     : slots,
-                        'projection': engraving,
-                        'neighbours': face['neighbours'],
-                        'points'    : edges } )
+        paths.append ( { 'bbox'      : bbox,
+                         'borders'   : shape,
+                         'slots'     : slots,
+                         'projection': engraving,
+                         'neighbours': face['neighbours'],
+                         'points'    : edges } )
 
     return paths
 
@@ -89,7 +91,7 @@ def inkscape_batch_intersection(filename, face_count, invert):
     else:
         action = 'SelectionIntersect'
 
-    for i in xrange(face_count):
+    for i in range(face_count):
         argv += [ '--select=engrave_'+str(i), '--verb', 'SelectionUnGroup', '--verb', action, '--verb', 'EditDeselect' ]
 
     argv += [ '--verb', 'FileSave', '--verb', 'FileQuit' ]
@@ -122,7 +124,7 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
 
         x, y = pos[i]
         borders_path = svg.polygon_path(face['borders'])
-#        borders_path = svg.polygon_path(face['borders']) + ''.join(svg.polygon_path(s) for s in face['slots'])
+        borders_path = svg.polygon_path(face['borders']) + ''.join(svg.polygon_path(s) for s in face['slots'])
         projection_path = svg.polygon_multipath(face['projection'])
 
         borders = svg.path( borders_path, style=cut )
@@ -156,7 +158,7 @@ def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers,
     f.write(svg.footer())
 
 def render_polyhedron_map(filename, faces, notches,
-                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert, use_numbers, center_dot, map_type, comment):
+                          radius, thickness, overhang, overcut, cutwidth, padding, sheetwidth, flip, invert, use_slots, use_numbers, center_dot, map_type, comment):
 
     if map_type != None:
         g = globe.get_map(maps.map_file(map_type))
@@ -168,6 +170,7 @@ def render_polyhedron_map(filename, faces, notches,
                                      thickness=thickness,
                                      overhang=overhang,
                                      overcut=overcut,
+                                     use_slots=use_slots,
                                      cutwidth=cutwidth,
                                      flip=flip)
     f = open(filename, "w")
@@ -248,6 +251,7 @@ if __name__ == '__main__':
     parser.add_argument("--nonumbers", help="do not plot number hints", action="store_true")
     parser.add_argument("--noengraving", help="do not plot world map", action="store_true")
     parser.add_argument("--centerdot", help="plot a center dot", action="store_true")
+    parser.add_argument("--slots", help="add slots for zip ties", action="store_true")
 
     args = parser.parse_args()
 
@@ -275,6 +279,9 @@ if __name__ == '__main__':
     if args.centerdot:
         comment += ' --centerdot'
 
+    if args.slots:
+        comment += ' --slots'
+
     #
     # convert to inkscape sizes
     #
@@ -295,6 +302,7 @@ if __name__ == '__main__':
                           sheetwidth=args.sheetwidth,
                           flip=args.flip,
                           invert=args.invert,
+                          use_slots=args.slots,
                           use_numbers=not args.nonumbers,
                           center_dot=args.centerdot,
                           map_type=args.map,

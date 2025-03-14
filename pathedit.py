@@ -146,20 +146,28 @@ def slot_short(a, b, unit):
         (3.7,  -3  *unit),
     ) ) )
 
-def normalize2( (x, y) ):
+def normalize2( a ):
+    x, y = a
     d = sqrt(x*x+y*y)
     return (x/d, y/d)
 
-def vector_sub2( (x1,y1), (x2,y2) ):
+def vector_sub2( a, b ):
+    x1, y1 = a
+    x2, y2 = b
     return (x1-x2, y1-y2)
 
-def vector_add2( (x1,y1), (x2,y2) ):
+def vector_add2( a, b ):
+    x1, y1 = a
+    x2, y2 = b
     return (x1+x2, y1+y2)
 
-def scalar_mul2( m, (x,y) ):
+def scalar_mul2( m, p ):
+    x, y = p
     return (x*m, y*m)
 
-def interpolate2( (x1,y1), (x2,y2), frac ):
+def interpolate2( a, b, frac ):
+    x1, y1 = a
+    x2, y2 = b
     return ( x2*frac+x1*(1-frac), y2*frac+y1*(1-frac) )
 
 def replace_line(a, b, jag):
@@ -197,20 +205,20 @@ slot_map = {
     'S': [
         (3, 3.5, 1.5, None, .5, None),
 
-        (0, 7, 7, None, .5, None),
+#        (0, 7, 7, None, .5, None),
     ],
     'L': [
-		(.1, 5, 5, 0., None, None),
-        (0, 7, 7, None, .5, None),
+#		(.1, 5, 5, 0., None, None),
+#        (0, 7, 7, None, .5, None),
         (3, 3.5, 1.5, None, .5, None),
     ],
     's': [
         (3, 3.5, 1.5, None, .5, None),
-        (0, 7, 7, None, .5, None),
+#        (0, 7, 7, None, .5, None),
     ],
     'l': [
-		(.1, 5, 5, None, None, 1.),
-        (0, 7, 7, None, .5, None),
+#		(.1, 5, 5, None, None, 1.),
+#        (0, 7, 7, None, .5, None),
         (3, 3.5, 1.5, None, .5, None),
     ],
 }
@@ -264,7 +272,10 @@ TOP, LEFT, BOTTOM, RIGHT, INSIDE = 0, 1, 2, 3, 4
 
 pmap = [ 1, 2, 4, 8 ]
 
-def bbox_phase( (start, phase), (x, y), (min_x, min_y, max_x, max_y) ):
+def bbox_phase( phase, p, box ):
+    start, phase = phase
+    x, y = p
+    min_x, min_y, max_x, max_y = box
     if start == INSIDE:
         if y > max_y:
             return TOP, 0
@@ -298,7 +309,7 @@ def bbox_phase( (start, phase), (x, y), (min_x, min_y, max_x, max_y) ):
         return (start, phase+1)
 
     if pset & pmap[cur-2]:
-        print "EEK"
+        print ("EEK")
         if phase > 0:
             return (start, phase-2)
         else:
@@ -306,7 +317,9 @@ def bbox_phase( (start, phase), (x, y), (min_x, min_y, max_x, max_y) ):
 
     raise Error("Meh!")
 
-def add_bbox_corners( (start, phase), (min_x, min_y, max_x, max_y), newpath ):
+def add_bbox_corners( phase, box, newpath ):
+    start, phase = phase
+    min_x, min_y, max_x, max_y = box
 
     corners = ( (min_x, max_y), (min_x, min_y), (max_x, min_y), (max_x, max_y) )
 
@@ -328,7 +341,7 @@ def sloppy_bbox_clip(path, bbox):
     if len(path) < 2:
         return []
 
-    for i in xrange(len(path)):
+    for i in range(len(path)):
         if inside(path[i], bbox):
             path = path[i+1:]+path[:i+1]
             break
@@ -360,8 +373,8 @@ def sloppy_bbox_clip(path, bbox):
         phase = bbox_phase(phase, exit_pos, bbox)
 
     if abs(phase[1]) > 2:
-        print "ulikely bbox condition met, untested"
-        print phase
+        print ("unlikely bbox condition met, untested")
+        print (phase)
         min_x, min_y, max_x, max_y = bbox
         return [(min_x, max_y), (min_x, min_y), (max_x, min_y), (max_x, max_y)]
 

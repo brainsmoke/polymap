@@ -12,7 +12,7 @@ def spiral(base, n_rotations, steps_per_rotation, delta):
     s = []
     n_steps = n_rotations * steps_per_rotation
 
-    for i in xrange(-n_steps/2, (1+n_steps)/2):
+    for i in range(-n_steps/2, (1+n_steps)/2):
     	c = cmath.rect(1., base+i*math.pi*2/steps_per_rotation)
         x, z = c.real, c.imag
         y = i*math.pi*2/steps_per_rotation*delta

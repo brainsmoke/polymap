@@ -33,13 +33,13 @@ def join_adjacent(r, dist, max_join=20):
     r = r[:]
     diffs = []
 
-    path = [ i/2                 for i in xrange(len(r)*2) ]
-    side = [ -(i%2)              for i in xrange(len(r)*2) ]
-    end  = [ i+1-2*(i%2)         for i in xrange(len(r)*2) ]
-    loc  = [ r[path[i]][side[i]] for i in xrange(len(r)*2) ]
+    path = [ i/2                 for i in range(len(r)*2) ]
+    side = [ -(i%2)              for i in range(len(r)*2) ]
+    end  = [ i+1-2*(i%2)         for i in range(len(r)*2) ]
+    loc  = [ r[path[i]][side[i]] for i in range(len(r)*2) ]
 
-    for a in xrange(len(path)):
-        for b in xrange(a+1, len(path)):
+    for a in range(len(path)):
+        for b in range(a+1, len(path)):
             diff = dist(loc[a], loc[b])
             if diff <= max_join:
                 diffs.append( ( diff, a, b ) )
@@ -88,7 +88,7 @@ def get_globe():
 
 def get_map(filename):
     regions = []
-    for r in file(filename).readlines():
+    for r in open(filename, 'r').readlines():
         regions.append(tuple(tuple(float(x) for x in p.split(',')) for p in r.split('|')))
 
     return tuple(regions)
@@ -105,7 +105,9 @@ def look_at(path, eye, center=(0,0,0), north=(0,1,0)):
     M = ( s, u, f_neg )
     return [ matrix_mul(M, vector_sub(v, eye)) for v in path ]
 
-def border_node( (x1,y1,z1), (x2,y2,z2), z_border):
+def border_node( a, b, z_border):
+    a = x1,y1,z1
+    b = x2,y2,z2
 
     if -0.00001 < z1-z2 < 0.00001:
         frac = .5
@@ -117,7 +119,8 @@ def border_node( (x1,y1,z1), (x2,y2,z2), z_border):
 
     return (x/z, y/z, True)
 
-def internal_node( (x,y,z), factor):
+def internal_node( p, factor):
+    x,y,z = p
     return (x*factor/-z, y*factor/-z, False)
 
 def cone_project(globe, eye, center=(0,0,0), north=(0,1,0), front=True):
@@ -137,7 +140,7 @@ def cone_project(globe, eye, center=(0,0,0), north=(0,1,0), front=True):
         last = None
         new_path = []
 
-        for i in xrange(len(path)):
+        for i in range(len(path)):
             if (d_cone+path[i][2] < 0) == front:
                 path = path[i:]+path[:i]+[path[i]]
                 visible = False
