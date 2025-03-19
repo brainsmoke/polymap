@@ -91,7 +91,7 @@ def inkscape_batch_intersection(filename, face_count, invert):
         action = 'path-intersection'
 
     actions = '--actions=' + ';'.join( 'select-by-id:engrave_'+str(i)+';selection-ungroup;'+action+';select-clear' for i in range(face_count) ) + ';export-do'
-    argv = [ 'inkscape', '--batch-process', actions, '--export-overwrite', filename ]
+    argv = [ 'inkscape',  actions, '--export-overwrite', filename ]
     print(argv)
     os.spawnvp(os.P_WAIT, 'inkscape', argv)
 
