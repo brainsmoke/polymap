@@ -84,17 +84,15 @@ def get_projection_paths(faces, globe, notches, radius, thickness, overhang, ove
 
 
 def inkscape_batch_intersection(filename, face_count, invert):
-    argv = [ 'inkscape', filename ]
 
     if invert:
-        action = 'SelectionDiff'
+        action = 'path-difference'
     else:
-        action = 'SelectionIntersect'
+        action = 'path-intersection'
 
-    for i in range(face_count):
-        argv += [ '--select=engrave_'+str(i), '--verb', 'SelectionUnGroup', '--verb', action, '--verb', 'EditDeselect' ]
-
-    argv += [ '--verb', 'FileSave', '--verb', 'FileQuit' ]
+    actions = '--actions=' + ';'.join( 'select-by-id:engrave_'+str(i)+';selection-ungroup;'+action+';select-clear' for i in range(face_count) ) + ';export-do'
+    argv = [ 'inkscape', '--batch-process', actions, '--export-overwrite', filename ]
+    print(argv)
     os.spawnvp(os.P_WAIT, 'inkscape', argv)
 
 def write_polygon_projection_svg(f, facepaths, sheetwidth, padding, use_numbers, use_map, center_dot, comment):
