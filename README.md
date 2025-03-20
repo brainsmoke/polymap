@@ -1,20 +1,34 @@
+
+# Polymap
+
+Create laser-cuttable polyhedra
+
+## Dependencies
+
+* inkscape (inkscape is not needed when invoked with --noengraving)
+
+## Usage
+
+```
 usage: polymap.py [-h]
                   [--type {T,O,C,D,I,tT,tC,bC,tO,tD,bD,tI,aC,aD,eC,eD,sC,sD,kT,kO,mC,kC,kI,mD,kD,jC,jD,oC,oD,gC,gD}]
-                  [--map {earth}] [--radius RADIUS]
-                  [--thickness THICKNESS] [--overhang OVERHANG]
-                  [--overcut OVERCUT] [--padding PADDING]
-                  [--sheetwidth SHEETWIDTH] [--cutwidth CUTWIDTH] [--flip]
-                  [--invert] [--nonumbers] [--noengraving] [--centerdot]
+                  [--map {spiral16,spiral8,spiral,earth}]
+                  [--radius RADIUS] [--thickness THICKNESS]
+                  [--overhang OVERHANG] [--overcut OVERCUT]
+                  [--padding PADDING] [--sheetwidth SHEETWIDTH]
+                  [--cutwidth CUTWIDTH] [--flip] [--invert] [--nonumbers]
+                  [--noengraving] [--centerdot] [--slots]
                   filename
 
 positional arguments:
   filename              output svg
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --type {T,O,C,D,I,tT,tC,bC,tO,tD,bD,tI,aC,aD,eC,eD,sC,sD,kT,kO,mC,kC,kI,mD,kD,jC,jD,oC,oD,gC,gD}
                         solid type (Conway name)
-  --map {earth}         map engraving
+  --map {spiral16,spiralx,spiral8,spiral,earth}
+                        map engraving
   --radius RADIUS       polyhedron's radius (mm) (default: 100)
   --thickness THICKNESS
                         material thickness (mm) (default: 3.)
@@ -30,6 +44,7 @@ optional arguments:
   --nonumbers           do not plot number hints
   --noengraving         do not plot world map
   --centerdot           plot a center dot
+  --slots               add slots for zip ties
 
 Supported solids: 
 
@@ -71,5 +86,4 @@ Errata:
       (different notches are required)
     - this script invokes inkscape to do a boolean path intersection operation
       this seems to fail for the tC solid (Europe's missing.)
-
-    
+```
