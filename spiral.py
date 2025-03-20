@@ -12,8 +12,8 @@ def spiral(base, n_rotations, steps_per_rotation, delta):
     s = []
     n_steps = n_rotations * steps_per_rotation
 
-    for i in range(-n_steps/2, (1+n_steps)/2):
-    	c = cmath.rect(1., base+i*math.pi*2/steps_per_rotation)
+    for i in range(-n_steps//2, (1+n_steps)//2):
+        c = cmath.rect(1., base+i*math.pi*2/steps_per_rotation)
         x, z = c.real, c.imag
         y = i*math.pi*2/steps_per_rotation*delta
         s.append( linear.normalize( (x, y, z) ) )
@@ -29,4 +29,4 @@ for i in range(n_spirals):
     paths += [ up + down ]
 
 for path in paths:
-    print '|'.join( "%.16f,%.16f,%.16f" % p for p in path)
+    print ('|'.join( "{:.16f},{:.16f},{:.16f}".format(*p) for p in path))

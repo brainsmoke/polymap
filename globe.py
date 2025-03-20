@@ -23,17 +23,17 @@ def globe_to_ll_coord(coord):
     return (a, b)
 
 def mercator_to_globe(m):
-    return [ map(ll_to_globe_coord, p) for p in m ]
+    return [ list(map(ll_to_globe_coord, p)) for p in m ]
 
 def globe_to_mercator(m):
-    return [ map(globe_to_ll_coord, p) for p in m ]
+    return [ list(map(globe_to_ll_coord, p)) for p in m ]
 
 def join_adjacent(r, dist, max_join=20):
 
     r = r[:]
     diffs = []
 
-    path = [ i/2                 for i in range(len(r)*2) ]
+    path = [ i//2                for i in range(len(r)*2) ]
     side = [ -(i%2)              for i in range(len(r)*2) ]
     end  = [ i+1-2*(i%2)         for i in range(len(r)*2) ]
     loc  = [ r[path[i]][side[i]] for i in range(len(r)*2) ]
@@ -74,7 +74,7 @@ def get_regions(filename):
     regions = []
     r = []
 
-    for line in file(filename).readlines():
+    for line in open(filename, 'r').readlines():
         if line[0] == '#':
             r = []
             regions.append(r)
