@@ -3,6 +3,8 @@
 
 Create laser-cuttable polyhedra
 
+<img src="img/snubcubemap.jpg" width="720">
+
 ## Dependencies
 
 * inkscape (inkscape is not needed when invoked with --noengraving)
