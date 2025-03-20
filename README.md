@@ -19,7 +19,7 @@ usage: polymap.py [-h]
                   [--overhang OVERHANG] [--overcut OVERCUT]
                   [--padding PADDING] [--sheetwidth SHEETWIDTH]
                   [--cutwidth CUTWIDTH] [--flip] [--invert] [--nonumbers]
-                  [--noengraving] [--centerdot] [--slots]
+                  [--noengraving] [--nonotches] [--centerdot] [--slots]
                   filename
 
 positional arguments:
@@ -45,6 +45,7 @@ options:
   --invert              engrave seas instead of landmass
   --nonumbers           do not plot number hints
   --noengraving         do not plot world map
+  --nonotches           do not generate notches
   --centerdot           plot a center dot
   --slots               add slots for zip ties
 

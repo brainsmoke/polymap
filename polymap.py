@@ -248,6 +248,7 @@ if __name__ == '__main__':
     parser.add_argument("--invert", help="engrave seas instead of landmass", action="store_true")
     parser.add_argument("--nonumbers", help="do not plot number hints", action="store_true")
     parser.add_argument("--noengraving", help="do not plot world map", action="store_true")
+    parser.add_argument("--nonotches", help="do not generate notches", action="store_true")
     parser.add_argument("--centerdot", help="plot a center dot", action="store_true")
     parser.add_argument("--slots", help="add slots for zip ties", action="store_true")
 
@@ -280,6 +281,9 @@ if __name__ == '__main__':
     if args.slots:
         comment += ' --slots'
 
+    if args.nonotches:
+        comment += ' --nonotches'
+
     #
     # convert to inkscape sizes
     #
@@ -287,6 +291,9 @@ if __name__ == '__main__':
     for name, _, faces_func, notches in projections:
         if name == args.type:
             break
+
+    if args.nonotches:
+        notches = "I"*len(notches)
 
     faces = faces_func()
 
