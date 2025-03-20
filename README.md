@@ -3,7 +3,7 @@
 
 Create laser-cuttable polyhedra
 
-<img src="img/snubcubemap.jpg" width="720">
+<img src="img/snubcubemap.png" width="720">
 
 ## Dependencies
 
